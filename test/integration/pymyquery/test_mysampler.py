@@ -6,9 +6,9 @@ from typing import Dict
 
 import pandas as pd
 
-from mya_getter.mysampler import MySampler
-from mya_getter.query import MySamplerQuery
-from mya_getter.utils import json_normalize
+from pymyquery.mysampler import MySampler
+from pymyquery.query import MySamplerQuery
+from pymyquery.utils import json_normalize
 
 
 DIR = os.path.dirname(__file__)
@@ -56,11 +56,11 @@ class TestMySampler(unittest.TestCase):
     def test_get_mysampler_1(self):
         """Test basic query with lots of default values. (No NaN in sample, but in interval)"""
 
-        query = MySamplerQuery(start=datetime.strptime("2024-04-24", "%Y-%m-%d"),
-                                       interval=3_600_000,
-                                       num_samples=5,
-                                       pvlist=["R1Q1GMES", "R1M1GMES"],
-                                       deployment="history")
+        query = MySamplerQuery(start=datetime.strptime("2018-04-24 12:00:00", "%Y-%m-%d %H:%M:%S"),
+                                       interval=600_000,  # 10 minutes
+                                       num_samples=10,
+                                       pvlist=["channel100", "channel101"],
+                                       deployment="docker")
 
         mysampler = MySampler(query)
         mysampler.run()
@@ -75,11 +75,11 @@ class TestMySampler(unittest.TestCase):
     def test_get_mysampler_2(self):
         """Test basic query with lots of default values. (No NaN in sample, but in interval)"""
 
-        query = MySamplerQuery(start=datetime.strptime("2018-04-24 12:15:00", "%Y-%m-%d %H:%M:%S"),
-                                       interval=60_000,
+        query = MySamplerQuery(start=datetime.strptime("2018-04-24 00:00:00", "%Y-%m-%d %H:%M:%S"),
+                                       interval=3_600_000, # hourly
                                        num_samples=15,
-                                       pvlist=["R1Q1GMES", "R1M1GMES"],
-                                       deployment="history")
+                                       pvlist=["channel100", "channel101"],
+                                       deployment="docker")
 
         mysampler = MySampler(query)
         mysampler.run()
