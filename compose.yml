@@ -1,6 +1,8 @@
 services:
   mya:
-    image: jeffersonlab/mycontainer
+    image: jeffersonlab/mycontainer:2.0.0
+    hostname: mya
+    container_name: mya
     ports:
       - "3306:3306"
     volumes:
@@ -9,3 +11,12 @@ services:
     environment:
       - MYSQL_PASSWORD=password
       - MYSQL_ROOT_PASSWORD=password
+  myquery:
+    image: jeffersonlab/myquery:6.2.0
+    hostname: myquery
+    container_name: myquery
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docker/myquery/context.xml:/usr/local/tomcat/conf/context.xml
+      - ./docker/myquery/deployment.properties:/usr/local/tomcat/lib/deployment.properties
