@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Tuple, Optional
 import numpy as np
 import pandas as pd
 
-from mya_getter import IntervalQuery, Interval
+from pymyquery import IntervalQuery, Interval
 
 
 def json_normalize(obj: Any) -> Any:

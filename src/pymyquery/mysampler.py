@@ -3,7 +3,8 @@ from typing import Optional, Dict
 import pandas as pd
 import requests
 
-from mya_getter.query import MySamplerQuery
+from pymyquery.query import MySamplerQuery
+from pymyquery.config import config
 
 
 __all__ = ["MySampler"]
@@ -28,15 +29,17 @@ class MySampler:
     regularly spaced time intervals.
     """
 
-    def __init__(self, query: MySamplerQuery, url: str = "https://epicsweb.jlab.org/myquery/mysampler"):
+    def __init__(self, query: MySamplerQuery, url: Optional[str] = None):
         """Construct an instance for running a mysampler query.
 
         Args:
             query: The query to run
-            url: The location of the mysampler endpoint
+            url: The location of the mysampler endpoint.  Generated from config if None supplied.
         """
         self.query = query
         self.url = url
+        if url is None:
+            self.url = f"{config.protocol}://{config.myquery_server}{config.mysampler_path}"
 
         self.data: Optional[pd.DataFrame] = None
         self.disconnects: Optional[Dict[str, pd.Series]] = None

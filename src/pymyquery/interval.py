@@ -6,8 +6,9 @@ import numpy as np
 import pandas as pd
 import requests
 
-from mya_getter.exceptions import MyqueryException
-from mya_getter.query import IntervalQuery
+from pymyquery.config import config
+from pymyquery.exceptions import MyqueryException
+from pymyquery.query import IntervalQuery
 
 __all__ = ["Interval"]
 
@@ -24,15 +25,17 @@ class Interval:
     requested time interval.
     """
 
-    def __init__(self, query: IntervalQuery, url: str = "https://epicsweb.jlab.org/myquery/interval"):
+    def __init__(self, query: IntervalQuery, url: Optional[str] = None):
         """Construct an instance for running a myquery interval.
 
         Args:
             query: The query to run
-            url: The location of the myquery/interval endpoint
+            url: The location of the myquery/interval endpoint. Generated from config if None supplied.
         """
         self.query = query
         self.url = url
+        if url is None:
+            self.url = f"{config.protocol}://{config.myquery_server}{config.interval_path}"
 
         self.data: Optional[pd.Series] = None
         self.disconnects: Optional[pd.Series] = None
