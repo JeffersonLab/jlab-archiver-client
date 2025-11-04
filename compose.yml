@@ -1,0 +1,11 @@
+services:
+  mya:
+    image: jeffersonlab/mycontainer
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mycontainer/100_channel.sql:/docker-entrypoint-initdb.d/100_channel.sql
+      - ./docker/mycontainer/101_channel.sql:/docker-entrypoint-initdb.d/101_channel.sql
+    environment:
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password

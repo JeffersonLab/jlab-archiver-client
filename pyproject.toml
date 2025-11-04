@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pymyquery"
+authors = [
+    { name = "Adam Carpenter", email = "adamc@jlab.org" },
+]
+description = "Software library for interacting with myquery web service"
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["mya", "MYA", "myquery"]
+license = { text = "JLab" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    'numpy  >= 1.24, < 2.0',
+    'pandas >= 1.5.3, < 2.0',
+    'scipy >= 1.15, < 2.0',
+    'requests >= 2.28.2, < 3',
+]
+
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    'pytest >= 8.3, < 9.0',
+    'pytest-cov >= 6.0.0, < 7.0',
+    'build >= 1.2, < 2.0',
+    'Sphinx >= 8.1, < 9.0',
+    'sphinx-autodoc-typehints >= 3.0, < 4.0',
+    'sphinx-rtd-theme >= 3.0, < 4.0',
+    'pylint >=3.3, < 4.0'
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["test/unit", "test/integration"]
+norecursedirs = [".git", "node_modules", "venv"]
+addopts = "--cov=pymyquery --cov-fail-under=80"
+
+[tool.pylint]
+max-line-length = 120
+max-attributes = 12
+max-args = 8

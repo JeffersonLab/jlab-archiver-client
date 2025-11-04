@@ -1,0 +1,11 @@
+{
+    "datatype": "DBR_DOUBLE",
+    "datasize": 1,
+    "datahost": "hstmya0",
+    "ioc": null,
+    "active": true,
+    "sampled": true,
+    "count": 6,
+    "sampleType": "myget",
+    "returnCount": 5
+}
