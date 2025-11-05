@@ -15,6 +15,11 @@ DIR = os.path.dirname(__file__)
 
 
 class TestMySampler(unittest.TestCase):
+    """Test the MySampler class to ensure it gives responses that mimic the myquery endpoint.
+
+    Testing strategy here is to compare 'live' query against saved results.  The saved results have been inspected
+    and should include situations with and without non-update events (disconnects, etc.)
+    """
 
     @staticmethod
     def load_mysampler_data(ident: str):
@@ -30,7 +35,7 @@ class TestMySampler(unittest.TestCase):
         return exp_data, exp_disconnects, exp_metadata
 
     @staticmethod
-    def save_mysampler_data(ident: str, data: pd.DataFrame, disconnects: Dict[str, pd.DataFrame],
+    def save_mysampler_data(ident: str, data: pd.DataFrame, disconnects: Dict[str, pd.Series],
                             metadata: Dict[str, object]):
         """Convenient way to save test case data for mysampler."""
         data.to_csv(f"{DIR}/data/myquery_{ident}-data.csv")
@@ -54,7 +59,7 @@ class TestMySampler(unittest.TestCase):
                                   f"\nExpected:\n{exp_metadata}\nResult:\n{res_metadata}\n")
 
     def test_get_mysampler_1(self):
-        """Test basic query with lots of default values. (No NaN in sample, but in interval)"""
+        """Test basic query with lots of default values. (includes NaN)"""
 
         query = MySamplerQuery(start=datetime.strptime("2018-04-24 12:00:00", "%Y-%m-%d %H:%M:%S"),
                                        interval=600_000,  # 10 minutes
@@ -73,7 +78,7 @@ class TestMySampler(unittest.TestCase):
                                     res_metadata)
 
     def test_get_mysampler_2(self):
-        """Test basic query with lots of default values. (No NaN in sample, but in interval)"""
+        """Test basic query with lots of default values. (includes NaNs)"""
 
         query = MySamplerQuery(start=datetime.strptime("2018-04-24 00:00:00", "%Y-%m-%d %H:%M:%S"),
                                        interval=3_600_000, # hourly
@@ -88,5 +93,46 @@ class TestMySampler(unittest.TestCase):
         res_metadata = mysampler.metadata
 
         exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_2")
+        self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
+                               res_metadata)
+
+    def test_get_mysampler_3(self):
+        """Test basic query with an enum type."""
+
+        query = MySamplerQuery(start=datetime.strptime("2019-08-12 00:00:00", "%Y-%m-%d %H:%M:%S"),
+                                       interval=1_800_000, # 30 minutes
+                                       num_samples=15,
+                                       pvlist=["channel1", "channel2"],
+                                       deployment="docker")
+
+        mysampler = MySampler(query)
+        mysampler.run()
+        res_data = mysampler.data
+        res_disconnects = mysampler.disconnects
+        res_metadata = mysampler.metadata
+
+        exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_3")
+        self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
+                               res_metadata)
+
+
+    def test_get_mysampler_4(self):
+        """Test basic query with an enum type with string response."""
+
+        query = MySamplerQuery(start=datetime.strptime("2019-08-12 00:00:00", "%Y-%m-%d %H:%M:%S"),
+                                       interval=1_800_000, # 30 minutes
+                                       num_samples=15,
+                                       pvlist=["channel1", "channel2"],
+                                       enums_as_strings=True,
+                                       deployment="docker")
+
+        mysampler = MySampler(query)
+        mysampler.run()
+        res_data = mysampler.data
+        res_disconnects = mysampler.disconnects
+        res_metadata = mysampler.metadata
+
+        self.save_mysampler_data("mysampler_4", res_data, res_disconnects, res_metadata)
+        exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_4")
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                res_metadata)
