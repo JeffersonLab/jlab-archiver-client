@@ -132,7 +132,6 @@ class TestMySampler(unittest.TestCase):
         res_disconnects = mysampler.disconnects
         res_metadata = mysampler.metadata
 
-        self.save_mysampler_data("mysampler_4", res_data, res_disconnects, res_metadata)
         exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_4")
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                res_metadata)
