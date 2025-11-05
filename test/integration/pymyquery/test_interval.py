@@ -7,9 +7,9 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
-from mya_getter.interval import Interval
-from mya_getter.query import IntervalQuery
-from mya_getter.utils import json_normalize
+from pymyquery.interval import Interval
+from pymyquery.query import IntervalQuery
+from pymyquery.utils import json_normalize
 
 
 DIR = os.path.dirname(__file__)
@@ -28,7 +28,7 @@ class TestInterval(unittest.TestCase):
             "2018-04-24 12:32:45",
             "2018-04-25 01:20:45",
         ]),
-        name="R123GMES",
+        name="channel101",
         dtype="float64",
     )
 
@@ -42,14 +42,16 @@ class TestInterval(unittest.TestCase):
             "2018-04-24 12:19:44",
             "2018-04-24 12:31:11",
             "2018-04-25 01:20:45"]),
-        name="R121GMES",
+        name="channel100",
         dtype="float64",
     )
 
     df_s1_s2 = pd.DataFrame(
         {
-            "R123GMES": [7.930, 7.930, 7.930, 0.000, 6.996, 7.930, 7.755, 7.755, np.nan, np.nan, 7.755, np.nan],
-            "R121GMES": [5.911, 0.000, np.nan, np.nan, np.nan, np.nan, np.nan, 5.660, np.nan, 5.657, 5.657, 5.657],
+            # Was modified version of R123GMES
+            "channel101": [7.930, 7.930, 7.930, 0.000, 6.996, 7.930, 7.755, 7.755, np.nan, np.nan, 7.755, np.nan],
+            # Was modified version of R121GMES
+            "channel100": [5.911, 0.000, np.nan, np.nan, np.nan, np.nan, np.nan, 5.660, np.nan, 5.657, 5.657, 5.657],
         },
         index=pd.to_datetime([
             "2018-04-24 00:00:00",
@@ -87,10 +89,20 @@ class TestInterval(unittest.TestCase):
         """Load test case data for interval"""
         exp_data = pd.read_csv(f"{DIR}/data/myquery_{ident}-data.csv", index_col=0)[pv]
         exp_disconnects = pd.read_csv(f"{DIR}/data/myquery_{ident}-disconnects.csv", index_col=0)[pv]
-        with open(f"{DIR}/data/myquery_{ident}-metadata.csv", "r") as f:
+        with open(f"{DIR}/data/myquery_{ident}-metadata.json", "r") as f:
             exp_metadata = json.load(f)
 
         return exp_data, exp_disconnects, exp_metadata
+
+    @staticmethod
+    def save_interval_data(ident: str, data: pd.Series, disconnects: pd.Series, metadata: Dict[str, object]):
+        """Convenient way to save test case data for interval."""
+        data.to_csv(f"{DIR}/data/myquery_{ident}-data.csv")
+        disconnects.to_csv(f"{DIR}/data/myquery_{ident}-disconnects.csv")
+
+        with open(f"{DIR}/data/myquery_{ident}-metadata.json", "w") as f:
+            # noinspection PyTypeChecker
+            json.dump(json_normalize(metadata), f)
 
     def check_interval_result(self, exp_data, exp_disconnects, exp_metadata, res_data,
                               res_disconnects, res_metadata):
@@ -102,28 +114,29 @@ class TestInterval(unittest.TestCase):
 
     def test_get_interval_1(self):
         """Test basic query with lots of default values. (Has NaN)"""
-        pv = "R123GSET"
+        pv = "channel100"
         query = IntervalQuery(channel=pv,
                                       begin=datetime.strptime("2018-04-24", "%Y-%m-%d"),
-                                      end=datetime.strptime("2018-04-25", "%Y-%m-%d"),
-                                      deployment="history"
+                                      end=datetime.strptime("2018-05-01", "%Y-%m-%d"),
+                                      deployment="docker"
                                       )
         interval = Interval(query)
         interval.run()
         res_data = interval.data
         res_disconnects = interval.disconnects
         res_metadata = interval.metadata
-        
+
         exp_data, exp_disconnects, exp_metadata = self.load_interval_data("interval_1", pv=pv)
         self.check_interval_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects, res_metadata)
     
     def test_get_interval_2(self):
         """Test query that uses sampling and some extra options (no NaNs)"""
-        pv = "R123GMES"
+        # Was R123GMES
+        pv = "channel101"
         query = IntervalQuery(channel=pv,
                                       begin=datetime.strptime("2018-04-24", "%Y-%m-%d"),
-                                      end=datetime.strptime("2018-04-25 01:20:45.002", "%Y-%m-%d %H:%M:%S.%f"),
-                                      deployment="history",
+                                      end=datetime.strptime("2018-05-01", "%Y-%m-%d"),
+                                      deployment="docker",
                                       bin_limit=5,
                                       sample_type="myget",
                                       frac_time_digits=2,
@@ -140,7 +153,7 @@ class TestInterval(unittest.TestCase):
         res_data = interval.data
         res_disconnects = interval.disconnects
         res_metadata = interval.metadata
-        
+
         exp_data, exp_disconnects, exp_metadata = self.load_interval_data("interval_2", pv=pv)
         self.check_interval_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects, res_metadata)
 
@@ -151,7 +164,7 @@ class TestInterval(unittest.TestCase):
                                             begin=datetime.strptime("2018-04-24", "%Y-%m-%d"),
                                             end=datetime.strptime("2018-04-25 01:20:45.002",
                                                                 "%Y-%m-%d %H:%M:%S.%f"),
-                                            deployment="history",
+                                            deployment="docker",
                                             prior_point=True,)
         res_data, res_disconnects, res_metadata = out
 
