@@ -143,7 +143,7 @@ class TestInterval(unittest.TestCase):
                                       sig_figs=3,
                                       data_updates_only=False,
                                       prior_point=False,
-                                      enums_as_str=False,
+                                      enums_as_strings=False,
                                       unix_timestamps_ms=False,
                                       adjust_time_to_server_offset=False,
                                       integrate=False,
@@ -157,22 +157,44 @@ class TestInterval(unittest.TestCase):
         exp_data, exp_disconnects, exp_metadata = self.load_interval_data("interval_2", pv=pv)
         self.check_interval_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects, res_metadata)
 
-    def test_run_parallel_combined(self):
-        exp = self.df_s1_s2
+    def test_get_interval_3(self):
+        """Test query that gets a non-scaler (waveform) record."""
+        # Was R123GMES
+        pv = "channel3"
+        query = IntervalQuery(channel=pv,
+                                      begin=datetime.strptime("2019-08-12", "%Y-%m-%d"),
+                                      end=datetime.strptime("2019-08-13", "%Y-%m-%d"),
+                                      deployment="docker",
+                                      )
+        interval = Interval(query)
+        interval.run()
+        res_data = interval.data
+        res_disconnects = interval.disconnects
+        res_metadata = interval.metadata
 
-        out = Interval.run_parallel(pvlist=["R123GMES", "R121GMES"],
-                                            begin=datetime.strptime("2018-04-24", "%Y-%m-%d"),
-                                            end=datetime.strptime("2018-04-25 01:20:45.002",
-                                                                "%Y-%m-%d %H:%M:%S.%f"),
-                                            deployment="docker",
-                                            prior_point=True,)
-        res_data, res_disconnects, res_metadata = out
+        # We can directly save the data as usual, but pandas saves each row as a string.  Need a little help getting it
+        # back.
+        exp_data, exp_disconnects, exp_metadata = self.load_interval_data("interval_3", pv=pv)
+        exp_data = exp_data.apply(lambda x: np.fromstring(x.strip("[]"), sep=" "))
 
-        self.save_interval_data_parallel("interval_parallel_1", res_data, res_disconnects, res_metadata)
-        print(res_disconnects)
-        print(res_metadata)
+        self.check_interval_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects, res_metadata)
 
-        self.fail()
+    # def test_run_parallel_combined(self):
+    #     exp = self.df_s1_s2
+    #
+    #     out = Interval.run_parallel(pvlist=["R123GMES", "R121GMES"],
+    #                                         begin=datetime.strptime("2018-04-24", "%Y-%m-%d"),
+    #                                         end=datetime.strptime("2018-04-25 01:20:45.002",
+    #                                                             "%Y-%m-%d %H:%M:%S.%f"),
+    #                                         deployment="docker",
+    #                                         prior_point=True,)
+    #     res_data, res_disconnects, res_metadata = out
+    #
+    #     self.save_interval_data_parallel("interval_parallel_1", res_data, res_disconnects, res_metadata)
+    #     print(res_disconnects)
+    #     print(res_metadata)
+    #
+    #     self.fail()
 
 
     def test__combine_series(self):

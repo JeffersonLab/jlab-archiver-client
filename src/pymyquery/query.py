@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime
 from typing import Optional, List, Dict
 
@@ -11,8 +12,12 @@ class Query:
     def __init__(self):
         raise NotImplementedError("Query class is abstract")
 
+    def to_web_params(self):
+        raise NotImplementedError("Query class is abstract")
+
 
 class IntervalQuery(Query):
+    """A class for holding the parameters of an interval myquery call"""
     # noinspection PyMissingConstructor
     def __init__(self, channel: str, begin: datetime, end: datetime,
                  bin_limit: Optional[int] = None,
@@ -22,7 +27,7 @@ class IntervalQuery(Query):
                  sig_figs: int = 6,
                  data_updates_only: bool = False,
                  prior_point: bool = False,
-                 enums_as_str: bool = False,
+                 enums_as_strings: bool = False,
                  unix_timestamps_ms: bool = False,
                  adjust_time_to_server_offset: bool = False,
                  integrate: bool = False,
@@ -31,7 +36,7 @@ class IntervalQuery(Query):
         """Construct a query to the myquery interval service.
 
         Args:
-            channel: The name of the PV to query
+            channel: A list of PV Names to query
             begin: The start time of the query
             end: The end time of the query
             bin_limit: How many points returned from MYA before sampling kicks in
@@ -41,11 +46,12 @@ class IntervalQuery(Query):
             data_updates_only: Should the response include updates that only include value changes (not disconnects?)
             prior_point: Should the query use the most recent update prior to the start to give a value at the start of
                          the query.
-            enums_as_str:  Should enum PV values be returned as their named strings instead of ints
+            enums_as_strings:  Should enum PV values be returned as their named strings instead of ints
             unix_timestamps_ms:  Should timestamps be returned as millis since unix epoch
             adjust_time_to_server_offset: Should the timestamp be localized to the myquery server
             integrate: Should the values be integrated (ony supported for float PVs)
-            kwargs: Any extra parameters to be supplied to the interval web end point.
+            kwargs: Any extra parameters to be supplied to the interval web end point.  Will produce a warning if used
+                    to avoid accidental use.
         """
         self.channel = channel
         self.begin = begin
@@ -57,7 +63,7 @@ class IntervalQuery(Query):
         self.sig_figs = sig_figs
         self.data_updates_only = data_updates_only
         self.prior_point = prior_point
-        self.enums_as_str = enums_as_str
+        self.enums_as_strings = enums_as_strings
         self.unix_timestamps_ms = unix_timestamps_ms
         self.adjust_time_to_server_offset = adjust_time_to_server_offset
         self.integrate = integrate
@@ -96,7 +102,7 @@ class IntervalQuery(Query):
             out['d'] = 'on'
         if self.prior_point:
             out['p'] = 'on'
-        if self.enums_as_str:
+        if self.enums_as_strings:
             out['s'] = 'on'
         if self.unix_timestamps_ms:
             out['u'] = 'on'
@@ -107,7 +113,8 @@ class IntervalQuery(Query):
             out['i'] = 'on'
 
         # Allow the user to add extra options if they so choose.
-        if self.extra_opts is not None:
+        if self.extra_opts is not None and len(self.extra_opts) > 0:
+            warnings.warn(f"Using extra_opts - {self.extra_opts}")
             out.update(self.extra_opts)
 
         return out
@@ -118,30 +125,56 @@ class MySamplerQuery(Query):
 
     # noinspection PyMissingConstructor
     def __init__(self, start: datetime, interval: int, num_samples: int, pvlist: List[str],
-                 deployment: Optional[str] = None, **kwargs):
+                 deployment: Optional[str] = "history", data_updates_only: bool=False, enums_as_strings: bool=False,
+                 unix_timestamps_ms: bool=False, adjust_time_to_server_offset: bool=False, **kwargs):
+        """Construct an instance of MySamplerQuery.
+
+        Args:
+            start: The start date of the query.
+            interval: The number of milliseconds between each query.
+            num_samples: The number of samples to take
+            pvlist: The list of PVs to collect on
+            deployment: The mya deployment to use.  (Default:"history", unlike the myquery endpoint).
+            data_updates_only: Should the response ignore events such as "NETWORK_DISCONNECT" and assume the previous
+                                value is still in effect  (Default: False)
+            enums_as_strings: Should enum PV values be returned as their names instead of ints
+            unix_timestamps_ms: Should timestamps be returned as millis since unix epoch
+            adjust_time_to_server_offset: Should the timestamp be localized to the myquery server
+            extra_opts: Extra options to pass to the mysampler endpoint.  Helps to future-proof, produces a warning to
+                        avoid accidental use.
+        """
         self.start = start.replace(microsecond=0).isoformat().replace("T", " ")
         self.interval = interval
         self.num_samples = num_samples
         self.pvlist = pvlist
         self.deployment = deployment
+        self.data_updates_only = data_updates_only
+        self.enums_as_strings = enums_as_strings
+        self.unix_timestamps_ms = unix_timestamps_ms
+        self.adjust_time_to_server_offset = adjust_time_to_server_offset
         self.extra_opts = kwargs
-
-    @staticmethod
-    def from_config(start: str, interval: str, num_samples: str, pvlist: List[str], **kwargs):
-        return MySamplerQuery(start=datetime.strptime(start, "%Y-%m-%d %H:%M:%S"),
-                              interval=int(interval),
-                              num_samples=int(num_samples),
-                              pvlist=pvlist, **kwargs)
 
     def to_web_params(self) -> Dict[str, str]:
         """Convert the objects command line parameters to their web counterparts"""
         out = {'c': ",".join(self.pvlist),
                'b': self.start.replace(" ", "T"),
                'n': self.num_samples,
-               'm': self.deployment, 's': self.interval
+               'm': self.deployment,
+               's': self.interval,
                }
 
-        if self.extra_opts is not None:
+        # API takes presence of some params to mean == true, and the web form uses 'on' instead of a boolean.
+        if self.data_updates_only:
+            out['d'] = 'on'
+        if self.enums_as_strings:
+            out['e'] = 'on'
+        if self.unix_timestamps_ms:
+            out['u'] = 'on'
+        if self.adjust_time_to_server_offset:
+            out['a'] = 'on'
+
+        if self.extra_opts is not None and len(self.extra_opts) > 0:
+            warnings.warn(f"Using extra_opts - {self.extra_opts}")
             out.update(self.extra_opts)
 
         return out

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import requests
 
+from pymyquery import utils
 from pymyquery.config import config
 from pymyquery.exceptions import MyqueryException
 from pymyquery.query import IntervalQuery
@@ -69,8 +70,6 @@ class Interval:
                 ts.append(item['d'])
                 values.append(item['v'])
 
-        data = pd.Series(values, index=ts, name=self.query.channel)
-
         # Default value for empty series is in flux.  Future will have dtype of object.  This skips a deprecation warning.
         if len(disconnect_values) == 0:
             disconnects = pd.Series(disconnect_values, index=disconnect_ts, name=self.query.channel, dtype=object)
@@ -82,7 +81,7 @@ class Interval:
             if key != "data":
                 metadata[key] = value
 
-        self.data = data
+        self.data = utils.convert_data_to_pandas(values, ts, self.query.channel, metadata, self.query.enums_as_strings)
         self.disconnects = disconnects
         self.metadata = metadata
 
