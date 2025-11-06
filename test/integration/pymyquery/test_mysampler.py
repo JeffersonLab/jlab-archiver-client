@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 from typing import Dict
 
+import numpy as np
 import pandas as pd
 
 from pymyquery.mysampler import MySampler
@@ -12,6 +13,28 @@ from pymyquery.utils import json_normalize
 
 
 DIR = os.path.dirname(__file__)
+
+def process_vector_series(x: pd.Series):
+    """Process a Series where some columns are strings representing a vector.  Modify only if needed.
+
+    Args:
+        x: Series to process
+    """
+
+    for i in range(len(x)):
+        val = x[i]
+        if val is None:
+            continue
+        if isinstance(val, str):
+            if val.startswith("[") and val.endswith("]"):
+                x[i] = np.fromstring(val.strip("[]"), sep=" ", dtype=float)
+        elif isinstance(val, float):
+            pass
+        elif isinstance(val, object):
+            if val.str.startswith("[") and val.str.endswith("]"):
+                x[i] = np.fromstring(val.str.strip("[]"), sep=" ", dtype=float)
+
+    return x
 
 
 class TestMySampler(unittest.TestCase):
@@ -26,6 +49,7 @@ class TestMySampler(unittest.TestCase):
         """Load test case data for mysampler"""
         exp_data = pd.read_csv(f"{DIR}/data/myquery_{ident}-data.csv", index_col=0)
         exp_data.index = pd.to_datetime(exp_data.index)
+
         with open(f"{DIR}/data/myquery_{ident}-disconnects.json", "r") as f:
             exp_disconnects = json.load(f)
 
@@ -33,6 +57,7 @@ class TestMySampler(unittest.TestCase):
             exp_metadata = json.load(f)
 
         return exp_data, exp_disconnects, exp_metadata
+
 
     @staticmethod
     def save_mysampler_data(ident: str, data: pd.DataFrame, disconnects: Dict[str, pd.Series],
@@ -133,5 +158,33 @@ class TestMySampler(unittest.TestCase):
         res_metadata = mysampler.metadata
 
         exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_4")
+        self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
+                               res_metadata)
+
+
+    def test_get_mysampler_5(self):
+        """Test basic query with an enum type with string responses and a vector valued (DBR_DOUBLE) channel."""
+
+        query = MySamplerQuery(start=datetime.strptime("2019-08-12 00:00:00", "%Y-%m-%d %H:%M:%S"),
+                                       interval=1_800_000, # 30 minutes
+                                       num_samples=15,
+                                       pvlist=["channel2", "channel3"],
+                                       enums_as_strings=True,
+                                       deployment="docker")
+
+        mysampler = MySampler(query)
+        mysampler.run()
+        res_data = mysampler.data
+        res_disconnects = mysampler.disconnects
+        res_metadata = mysampler.metadata
+
+        self.save_mysampler_data("mysampler_5", res_data, res_disconnects, res_metadata)
+        exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_5")
+        exp_data = exp_data.apply(process_vector_series, axis=0)
+        exp_data[exp_data.isnull()] = None
+
+        print("Result:\n", res_data, "\n", res_data.dtypes)
+        print("Expected:\n", exp_data, "\n", exp_data.dtypes)
+
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                res_metadata)
