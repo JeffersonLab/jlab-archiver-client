@@ -75,15 +75,23 @@ def convert_data_to_dataframe(samples: Dict[str, Any], metadata: Dict[str, Dict[
         # Get the EPICS record type
         rtyp = metadata[channel]['metadata']['datatype']
 
+        def _convert_row(row, dtype) -> np.ndarray:
+            """Convert a list of strings to a numpy array of the appropriate type and handle None"""
+            if row is None:
+                out = None
+            else:
+                out = np.array(row, dtype=dtype)
+            return out
+
         # Since we only have vector valued channels, we need to convert from the str type that myquery supplies
         if rtyp in ("DBR_DOUBLE", "DBR_FLOAT"):
             # Cast to float (64-bit is adequate for both)
-            samples[channel] = samples[channel].apply(lambda x: np.array(np.array(x), dtype=float))
+            samples[channel] = list(map(lambda x: _convert_row(x, float), samples[channel]))
         elif rtyp in ("DBR_SHORT", "DBR_LONG"):
             # Cast to int (64-bit is adequate for both)
-            samples[channel] = samples[channel].apply(lambda x: np.array(np.array(x), dtype=int))
+            samples[channel] = list(map(lambda x: _convert_row(x, int), samples[channel]))
         elif rtyp == "DBR_ENUM" and not enums_as_strings:
-            samples[channel] = samples[channel].apply(lambda x: np.array(np.array(x), dtype=int))
+            samples[channel] = list(map(lambda x: _convert_row(x, int), samples[channel]))
         else:
             # We will leave them as a list of strings
             pass
