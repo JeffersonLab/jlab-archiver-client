@@ -20,6 +20,9 @@ class _Config:
     interval_path: str = "/myquery/interval"
     """The path to the interval endpoint"""
 
+    channel_path: str = "/myquery/channel"
+    """The path to the channel endpoint"""
+
     def set(self, **kwargs) -> None:
         """mutate-in-place API so imports never go stale"""
         with _lock:
@@ -30,10 +33,11 @@ class _Config:
         """Get a consistent (thread-safe) snapshot of the config."""
         with _lock:
             return {
-                "host": self.host,
-                "port": self.port,
+                "protocol": self.protocol,
+                "myquery_server": self.myquery_server,
                 "mysampler_path": self.mysampler_path,
                 "interval_path": self.interval_path,
+                "channel_path": self.channel_path,
             }
 
 config = _Config()  # singleton
