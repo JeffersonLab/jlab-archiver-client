@@ -101,6 +101,9 @@ class TestMySampler(unittest.TestCase):
         exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_1")
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                     res_metadata)
+        self.assertEqual(res_data.channel100.dtype, float)
+        self.assertEqual(res_data.channel101.dtype, float)
+
 
     def test_get_mysampler_2(self):
         """Test basic query with lots of default values. (includes NaNs)"""
@@ -120,6 +123,9 @@ class TestMySampler(unittest.TestCase):
         exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_2")
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                res_metadata)
+        self.assertEqual(res_data.channel100.dtype, float)
+        self.assertEqual(res_data.channel101.dtype, float)
+
 
     def test_get_mysampler_3(self):
         """Test basic query with an enum type."""
@@ -139,6 +145,8 @@ class TestMySampler(unittest.TestCase):
         exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_3")
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                res_metadata)
+        self.assertEqual(res_data.channel1.dtype, float)
+        self.assertEqual(res_data.channel2.dtype, float)
 
 
     def test_get_mysampler_4(self):
@@ -160,6 +168,9 @@ class TestMySampler(unittest.TestCase):
         exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_4")
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                res_metadata)
+        self.assertEqual(res_data.channel1.dtype, float)
+        self.assertEqual(res_data.channel2.dtype, object)
+
 
 
     def test_get_mysampler_5(self):
@@ -188,3 +199,5 @@ class TestMySampler(unittest.TestCase):
 
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                res_metadata)
+        self.assertEqual(res_data.channel2.dtype, object)
+        self.assertEqual(res_data.channel3.dtype, object)
