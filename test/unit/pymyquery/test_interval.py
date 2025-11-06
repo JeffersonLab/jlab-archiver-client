@@ -7,9 +7,9 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
-from mya_getter.interval import Interval
-from mya_getter.query import IntervalQuery
-from mya_getter.utils import json_normalize
+from pymyquery.interval import Interval
+from pymyquery.query import IntervalQuery
+from pymyquery.utils import json_normalize
 
 
 DIR = os.path.dirname(__file__)
