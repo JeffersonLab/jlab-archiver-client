@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 
-def convert_data_to_pandas(values: List[Any], ts: List[Any], name: str, metadata: Dict[str, Any],
+def convert_data_to_series(values: List[Any], ts: List[Any], name: str, metadata: Dict[str, Any],
                            enums_as_strings: bool) -> pd.Series:
     """Process the data response from myquery.
 
@@ -18,6 +18,10 @@ def convert_data_to_pandas(values: List[Any], ts: List[Any], name: str, metadata
         name: Name of the channel queried.
         metadata: Channel metadata returned by myquery.
         enums_as_strings: Should enums be displayed in their string names?
+
+    Returns:
+        A pandas Series with the data converted from myquery.  Vector valued responses are converted to the
+        appropriate datatype.  The index is the timestamps of each sample.
     """
     if metadata['datasize'] == 1:
         data = pd.Series(values, index=ts, name=name)
@@ -37,6 +41,54 @@ def convert_data_to_pandas(values: List[Any], ts: List[Any], name: str, metadata
         else:
             # This will return values as an array of str
             data = pd.Series(values, index=ts, name=name)
+
+    return data
+
+
+def convert_data_to_dataframe(samples: Dict[str, Any], metadata: Dict[str, Dict[str,Any]],
+                           enums_as_strings: bool) -> pd.DataFrame:
+    """Process the data response from myquery if multiple channels are included.
+
+    If the data is scalar (datasize == 1), then pandas can automatically determine the type.  When datasize > 1, myquery
+    returns an array of strings for each value, and the client must convert them to the appropriate datatype.
+
+    Args:
+        samples: Array of myquery values to process.  Should include "Date" and channel name as keys, and Lists of
+                 values as the dict values
+        metadata: Channel metadata returned by myquery.  Keyed on channel names
+        enums_as_strings: Should enums be displayed as their string names
+
+    Returns:
+        A pandas DataFrame with the data converted from myquery.  Vector valued responses are converted to the
+        appropriate datatype.  The index is the Date field converted to a DateTimeIndex.
+    """
+    # Iterate through the channels and convert them if needed.
+    for channel in samples.keys():
+        if channel == "Date":
+            samples[channel] = pd.to_datetime(samples[channel])
+            continue
+
+        # Leave scalar valued series alone
+        if metadata[channel]['metadata']['datasize'] == 1:
+            continue
+
+        # Get the EPICS record type
+        rtyp = metadata[channel]['metadata']['datatype']
+
+        # Since we only have vector valued channels, we need to convert from the str type that myquery supplies
+        if rtyp in ("DBR_DOUBLE", "DBR_FLOAT"):
+            # Cast to float (64-bit is adequate for both)
+            samples[channel] = samples[channel].apply(lambda x: np.array(np.array(x), dtype=float))
+        elif rtyp in ("DBR_SHORT", "DBR_LONG"):
+            # Cast to int (64-bit is adequate for both)
+            samples[channel] = samples[channel].apply(lambda x: np.array(np.array(x), dtype=int))
+        elif rtyp == "DBR_ENUM" and not enums_as_strings:
+            samples[channel] = samples[channel].apply(lambda x: np.array(np.array(x), dtype=int))
+        else:
+            # We will leave them as a list of strings
+            pass
+
+    data = pd.DataFrame(samples).set_index("Date", drop=True)
 
     return data
 

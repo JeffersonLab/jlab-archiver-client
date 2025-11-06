@@ -3,6 +3,7 @@ from typing import Optional, Dict
 import pandas as pd
 import requests
 
+from pymyquery import utils
 from pymyquery.query import MySamplerQuery
 from pymyquery.config import config
 
@@ -99,11 +100,7 @@ class MySampler:
                         metadata[channel] = {}
                     metadata[channel][key] = channels[channel][key]
 
-        data = pd.DataFrame(samples)
-        data.Date = pd.to_datetime(data.Date)
-        data = data.set_index("Date")
-
         # Update the object with the processed response
-        self.data = data
+        self.data = utils.convert_data_to_dataframe(samples, metadata, self.query.enums_as_strings)
         self.disconnects = disconnects
         self.metadata = metadata

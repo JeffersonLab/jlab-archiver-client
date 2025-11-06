@@ -81,7 +81,7 @@ class Interval:
             if key != "data":
                 metadata[key] = value
 
-        self.data = utils.convert_data_to_pandas(values, ts, self.query.channel, metadata, self.query.enums_as_strings)
+        self.data = utils.convert_data_to_series(values, ts, self.query.channel, metadata, self.query.enums_as_strings)
         self.disconnects = disconnects
         self.metadata = metadata
 
