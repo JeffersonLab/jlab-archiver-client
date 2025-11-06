@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List, Dict
 
 
-__all__ = ["Query", "IntervalQuery", "MySamplerQuery"]
+__all__ = ["Query", "IntervalQuery", "MySamplerQuery", "ChannelQuery"]
 
 
 class Query:
@@ -22,7 +22,7 @@ class IntervalQuery(Query):
     def __init__(self, channel: str, begin: datetime, end: datetime,
                  bin_limit: Optional[int] = None,
                  sample_type: Optional[str] = None,
-                 deployment: str = "ops",
+                 deployment: Optional[str] = "history",
                  frac_time_digits: int = 0,
                  sig_figs: int = 6,
                  data_updates_only: bool = False,
@@ -39,6 +39,7 @@ class IntervalQuery(Query):
             channel: A list of PV Names to query
             begin: The start time of the query
             end: The end time of the query
+            deployment: The mya deployment to query
             bin_limit: How many points returned from MYA before sampling kicks in
             sample_type: What sampling algorithm should be used.  [graphical, eventsimple, myget, mysampler]
             frac_time_digits: How many digits should be displayed for fractional seconds
@@ -172,6 +173,41 @@ class MySamplerQuery(Query):
             out['u'] = 'on'
         if self.adjust_time_to_server_offset:
             out['a'] = 'on'
+
+        if self.extra_opts is not None and len(self.extra_opts) > 0:
+            warnings.warn(f"Using extra_opts - {self.extra_opts}")
+            out.update(self.extra_opts)
+
+        return out
+
+
+class ChannelQuery(Query):
+    """A class for containing the arguments needed by myquery's channel endpoint."""
+
+    def __init__(self, pattern: str, limit: Optional[int] = None, offset: Optional[int] = None,
+                 deployment: Optional[str] = "history", **kwargs):
+        """Construct an instance of ChannelQuery.
+
+        Args:
+            pattern: The channel name pattern to match against (SQL patterns)
+            limit: The maximum number of results to return
+            offset: The offset to start from
+            deployment: The mya deployment to use.
+            kwargs: Additional arguments to pass to the myquery endpoint.
+        """
+        self.pattern = pattern
+        self.limit = limit
+        self.offset = offset
+        self.deployment = deployment
+        self.extra_opts = kwargs
+
+    def to_web_params(self) -> Dict[str, str]:
+        """Convert the objects command line parameters to their web counterparts"""
+        out = {'q': self.pattern,
+               'l': self.limit,
+               'o': self.offset,
+               'm': self.deployment,
+               }
 
         if self.extra_opts is not None and len(self.extra_opts) > 0:
             warnings.warn(f"Using extra_opts - {self.extra_opts}")
