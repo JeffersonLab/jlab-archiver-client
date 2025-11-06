@@ -42,6 +42,8 @@ def convert_data_to_series(values: List[Any], ts: List[Any], name: str, metadata
             # This will return values as an array of str
             data = pd.Series(values, index=ts, name=name)
 
+    data.index = pd.to_datetime(data.index)
+
     return data
 
 
