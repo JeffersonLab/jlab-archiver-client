@@ -23,6 +23,9 @@ class _Config:
     channel_path: str = "/myquery/channel"
     """The path to the channel endpoint"""
 
+    point_path: str = "/myquery/point"
+    """The path to the point endpoint"""
+
     def set(self, **kwargs) -> None:
         """mutate-in-place API so imports never go stale"""
         with _lock:
@@ -38,6 +41,7 @@ class _Config:
                 "mysampler_path": self.mysampler_path,
                 "interval_path": self.interval_path,
                 "channel_path": self.channel_path,
+                "point_path": self.point_path,
             }
 
 config = _Config()  # singleton
