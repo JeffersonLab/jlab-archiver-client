@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List, Dict
 
 
-__all__ = ["Query", "IntervalQuery", "MySamplerQuery", "ChannelQuery"]
+__all__ = ["Query", "IntervalQuery", "MySamplerQuery", "ChannelQuery", "PointQuery"]
 
 
 class Query:
@@ -209,6 +209,91 @@ class ChannelQuery(Query):
                'm': self.deployment,
                }
 
+        if self.extra_opts is not None and len(self.extra_opts) > 0:
+            warnings.warn(f"Using extra_opts - {self.extra_opts}")
+            out.update(self.extra_opts)
+
+        return out
+
+
+class PointQuery(Query):
+    """A class for holding the parameters of an interval myquery call"""
+    # noinspection PyMissingConstructor
+    def __init__(self, channel: str, time: datetime,
+                 deployment: Optional[str] = "history",
+                 frac_time_digits: int = 0,
+                 sig_figs: int = 6,
+                 data_updates_only: bool = False,
+                 forward_time_search: bool = False,
+                 exclude_given_time: bool = False,
+                 enums_as_strings: bool = False,
+                 unix_timestamps_ms: bool = False,
+                 adjust_time_to_server_offset: bool = False,
+                 **kwargs
+                 ):
+        """Construct a query to the myquery interval service.
+
+        Args:
+            channel: A list of PV Names to query
+            time: The start time of the query
+            deployment: The mya deployment to query
+            frac_time_digits: How many digits should be displayed for fractional seconds
+            sig_figs: How many significant figures should be reported in the PV values
+            data_updates_only: Should the response include updates that only include value changes (not disconnects)
+            forward_time_search: Look forward in time from the given time for the next event (if True)
+            exclude_given_time:  Don't include the given time in the search space for the next event (if True)
+            enums_as_strings:  Should enum PV values be returned as their named strings instead of ints
+            unix_timestamps_ms:  Should timestamps be returned as millis since unix epoch
+            adjust_time_to_server_offset: Should the timestamp be localized to the myquery server
+            integrate: Should the values be integrated (ony supported for float PVs)
+            kwargs: Any extra parameters to be supplied to the interval web end point.  Will produce a warning if used
+                    to avoid accidental use.
+        """
+        self.channel = channel
+        self.time = time
+        self.deployment = deployment
+        self.frac_time_digits = frac_time_digits
+        self.sig_figs = sig_figs
+        self.forward_time_search = forward_time_search
+        self.exclude_given_time = exclude_given_time
+        self.data_updates_only = data_updates_only
+        self.enums_as_strings = enums_as_strings
+        self.unix_timestamps_ms = unix_timestamps_ms
+        self.adjust_time_to_server_offset = adjust_time_to_server_offset
+        self.extra_opts = kwargs
+
+    def to_web_params(self):
+        """
+        Convert the query to web parameters.
+
+        Based on myquery v6.2, but use of kwargs makes this more flexible.
+
+        Example URL that we're targeting
+        https://epicsweb.jlab.org/myquery/point?c=channel100&t=2018-04-24+12%3A00%3A00&m=docker&f=&v=&w=on&x=on
+        """
+        ts_fmt = "%Y-%m-%dT%H:%M:%S"
+        out = {'c': self.channel,
+               't': self.time.strftime(ts_fmt),
+               'm': self.deployment,
+               'f': self.frac_time_digits,
+               'v': self.sig_figs,
+               }
+
+        # API takes presence of some params to mean == true, and the web form uses 'on' instead of a boolean.
+        if self.data_updates_only:
+            out['d'] = 'on'
+        if self.forward_time_search:
+            out['w'] = "on"
+        if self.exclude_given_time:
+            out['x'] = "on"
+        if self.enums_as_strings:
+            out['s'] = 'on'
+        if self.unix_timestamps_ms:
+            out['u'] = 'on'
+        if self.adjust_time_to_server_offset:
+            out['a'] = 'on'
+
+        # Allow the user to add extra options if they so choose.
         if self.extra_opts is not None and len(self.extra_opts) > 0:
             warnings.warn(f"Using extra_opts - {self.extra_opts}")
             out.update(self.extra_opts)
