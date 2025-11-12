@@ -192,6 +192,9 @@ class Interval:
             pvlist: A list of PVs to queries
             max_workers: The maximum number of concurrent queries to run in parallel.
 
+        Raises:
+            MyqueryException when a problem with one or more queries has occurred
+
         Returns:
             A Pandas DataFrame of the combined PVs, a dictionry of per-channel disconnect series (keyed on channels),
             and a dictionary of per-channel metadata (keyed on channel)
