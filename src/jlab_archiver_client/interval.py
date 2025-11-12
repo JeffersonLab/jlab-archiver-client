@@ -1,3 +1,90 @@
+"""Query and retrieve historical EPICS PV data from the MYA archiver using the interval endpoint.
+
+This module provides the Interval class for querying the MYA archiver's interval endpoint,
+which retrieves all archived events for specified PVs over a given time range. The module
+supports both single-channel queries and parallel multi-channel queries, returning data as
+pandas Series or DataFrames with datetime indices.
+
+The interval endpoint returns all archived events (value updates, disconnections, etc.) within
+the specified time range. Non-update events (like network disconnections) are handled separately
+to maintain data integrity and type consistency.
+
+Examples:
+    These examples are designed to work with the container environment in the development repo.
+    First set the config to use the myquery container.
+
+        >>> from jlab_archiver_client.config import config
+        >>> config.set(myquery_server = "localhost:8080", protocol = "http")
+
+    Query a single channel and access the data:
+
+        >>> from datetime import datetime
+        >>> from jlab_archiver_client import IntervalQuery
+        >>> from jlab_archiver_client import Interval
+        >>>
+        >>> # Create a query for a single channel
+        >>> query = IntervalQuery(
+        ...             channel="channel100",
+        ...             begin=datetime(2018, 4, 24),
+        ...             end=datetime(2018, 5, 1),
+        ...             deployment="docker"
+        ...         )
+        >>>
+        >>> # Execute the query
+        >>> interval = Interval(query)
+        >>> interval.run()
+        >>>
+        >>> # Access the data as a pandas Series with datetime index
+        >>> print(interval.data)
+        2018-04-24 06:25:01    0.000
+        2018-04-24 06:25:05    5.911
+        2018-04-24 11:18:19    5.660
+        2018-04-24 12:19:44      NaN
+        2018-04-24 12:31:11    5.657
+        2018-04-25 02:39:29    0.000
+        2018-04-25 02:39:34    5.657
+        2018-04-26 10:31:39    0.000
+        2018-04-26 10:31:42    0.031
+        2018-04-26 10:31:43    2.466
+        2018-04-26 10:31:44    5.657
+        2018-04-27 14:29:41    0.000
+        2018-04-27 14:29:45    1.418
+        2018-04-27 14:29:46    5.657
+        2018-04-29 01:52:04    0.000
+        2018-04-29 01:52:08    5.657
+        2018-04-30 10:15:21    0.000
+        2018-04-30 10:15:26    5.658
+        Name: channel100, dtype: float64
+        >>>
+        >>> # Access disconnect events separately
+        >>> print(interval.disconnects)
+        2018-04-24 12:19:44    NETWORK_DISCONNECTION
+        Name: channel100, dtype: object
+        >>>
+        >>> # Access metadata about the channel
+        >>> print(interval.metadata)
+        {'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True, 'sampled': False, 'returnCount': 18}
+
+    Query multiple channels in parallel and get a combined DataFrame:
+
+        >>> from datetime import datetime
+        >>> from jlab_archiver_client.interval import Interval
+        >>> out = Interval.run_parallel(pvlist=["channel2", "channel3"],
+                            begin=datetime.strptime("2019-08-12 00:00:00", "%Y-%m-%d %H:%M:%S"),
+                            end=datetime.strptime("2019-08-12 01:20:45.002",
+                                                  "%Y-%m-%d %H:%M:%S.%f"),
+                            deployment="docker",
+                            prior_point=True,
+                            )
+        >>> data, disconnects, metadata = out
+        >>> data.head()
+                             channel2                                           channel3
+        2019-08-12 00:00:01       NaN  [1565580000.0, 1565580000.0, 1565580000.0, 156...
+        2019-08-12 00:43:56       0.0  [1565580000.0, 1565580000.0, 1565580000.0, 156...
+        2019-08-12 00:44:11       3.0  [1565580000.0, 1565580000.0, 1565580000.0, 156...
+        2019-08-12 01:00:01       3.0  [1565590000.0, 1565580000.0, 1565580000.0, 156...
+        2019-08-12 01:14:06       0.0  [1565590000.0, 1565580000.0, 1565580000.0, 156...
+"""
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, Dict, List, Tuple
