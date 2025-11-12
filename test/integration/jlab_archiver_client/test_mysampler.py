@@ -7,8 +7,8 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
-from jlab_archiver_client.mysampler import MySampler
-from jlab_archiver_client.query import MySamplerQuery
+from jlab_archiver_client import MySampler
+from jlab_archiver_client import MySamplerQuery
 from jlab_archiver_client.utils import json_normalize
 
 
