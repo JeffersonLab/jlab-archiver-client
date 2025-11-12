@@ -2,8 +2,8 @@ from typing import Optional, Dict, Any
 
 import requests
 
-from pymyquery.config import config
-from pymyquery.query import PointQuery
+from jlab_archiver_client.config import config
+from jlab_archiver_client.query import PointQuery
 
 __all__ = ["Point"]
 

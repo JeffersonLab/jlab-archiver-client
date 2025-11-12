@@ -1,5 +1,5 @@
-from pymyquery.channel import Channel
-from pymyquery.query import ChannelQuery
+from jlab_archiver_client.channel import Channel
+from jlab_archiver_client.query import ChannelQuery
 import unittest
 
 

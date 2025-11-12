@@ -3,9 +3,9 @@ from typing import Optional, Dict
 import pandas as pd
 import requests
 
-from pymyquery import utils
-from pymyquery.query import MySamplerQuery
-from pymyquery.config import config
+from jlab_archiver_client import utils
+from jlab_archiver_client.query import MySamplerQuery
+from jlab_archiver_client.config import config
 
 
 __all__ = ["MySampler"]

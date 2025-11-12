@@ -2,7 +2,7 @@ import unittest
 
 from datetime import datetime
 
-from pymyquery import Point, PointQuery
+from jlab_archiver_client import Point, PointQuery
 
 
 class TestPointQuery(unittest.TestCase):

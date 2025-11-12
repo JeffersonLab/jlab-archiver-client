@@ -5,7 +5,7 @@ from typing import Tuple, Any, Dict
 
 import numpy as np
 import pandas as pd
-from pymyquery import MyStatsQuery, MyStats
+from jlab_archiver_client import MyStatsQuery, MyStats
 
 
 class TestMyStats(unittest.TestCase):

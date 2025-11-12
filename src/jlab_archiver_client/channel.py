@@ -2,8 +2,8 @@ from typing import Optional, List, Any, Dict
 
 import requests
 
-from pymyquery.config import config
-from pymyquery.query import ChannelQuery
+from jlab_archiver_client.config import config
+from jlab_archiver_client.query import ChannelQuery
 
 
 __all__ = ["Channel"]

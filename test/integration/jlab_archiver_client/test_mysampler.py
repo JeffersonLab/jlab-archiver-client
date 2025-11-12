@@ -7,9 +7,9 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 
-from pymyquery.mysampler import MySampler
-from pymyquery.query import MySamplerQuery
-from pymyquery.utils import json_normalize
+from jlab_archiver_client.mysampler import MySampler
+from jlab_archiver_client.query import MySamplerQuery
+from jlab_archiver_client.utils import json_normalize
 
 
 DIR = os.path.dirname(__file__)

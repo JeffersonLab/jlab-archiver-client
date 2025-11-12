@@ -5,8 +5,8 @@ from typing import Optional, Dict
 import pandas as pd
 import requests
 
-from pymyquery.query import MyStatsQuery
-from pymyquery.config import config
+from jlab_archiver_client.query import MyStatsQuery
+from jlab_archiver_client.config import config
 
 __all__ = ["MyStats"]
 

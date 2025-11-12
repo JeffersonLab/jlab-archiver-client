@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 import requests
 
-from pymyquery import utils
-from pymyquery.config import config
-from pymyquery.exceptions import MyqueryException
-from pymyquery.query import IntervalQuery
+from jlab_archiver_client import utils
+from jlab_archiver_client.config import config
+from jlab_archiver_client.exceptions import MyqueryException
+from jlab_archiver_client.query import IntervalQuery
 
 __all__ = ["Interval"]
 
