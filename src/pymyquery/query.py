@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, List, Dict
 
 
-__all__ = ["Query", "IntervalQuery", "MySamplerQuery", "ChannelQuery", "PointQuery"]
+__all__ = ["Query", "IntervalQuery", "MySamplerQuery", "ChannelQuery", "PointQuery", "MyStatsQuery"]
 
 
 class Query:
@@ -294,6 +294,78 @@ class PointQuery(Query):
             out['a'] = 'on'
 
         # Allow the user to add extra options if they so choose.
+        if self.extra_opts is not None and len(self.extra_opts) > 0:
+            warnings.warn(f"Using extra_opts - {self.extra_opts}")
+            out.update(self.extra_opts)
+
+        return out
+
+
+class MyStatsQuery(Query):
+    """A class for containing the arguments needed by mystats endpoint."""
+
+    # noinspection PyMissingConstructor
+    def __init__(self,
+                 pvlist: List[str],
+                 start: datetime,
+                 end: datetime,
+                 num_bins: int = 1,
+                 deployment: Optional[str] = "history",
+                 frac_time_digits: int = 0,
+                 sig_figs: int = 6,
+                 data_updates_only: bool=False,
+                 enums_as_strings: bool=False,
+                 unix_timestamps_ms: bool=False,
+                 adjust_time_to_server_offset: bool=False,
+                 **kwargs):
+        """Construct an instance of MyStatsQuery.
+
+        Args:
+            pvlist: The list of PVs to collect on
+            start: The start date/time of the query.
+            end: The end date/time of the query.
+            num_bins: The number of bins to compute statistics over
+            deployment: The mya deployment to use.  (Default:"history", unlike the myquery endpoint).
+            data_updates_only: Should the response ignore events such as "NETWORK_DISCONNECT" and assume the previous
+                                value is still in effect  (Default: False)
+            enums_as_strings: Should enum PV values be returned as their names instead of ints
+            unix_timestamps_ms: Should timestamps be returned as millis since unix epoch
+            adjust_time_to_server_offset: Should the timestamp be localized to the myquery server
+            kwargs: Extra options to pass to the mysampler endpoint.  Helps to future-proof, produces a warning to
+                        avoid accidental use.
+        """
+        self.pvlist = pvlist
+        self.start = start
+        self.end = end
+        self.num_bins = num_bins
+        self.deployment = deployment
+        self.frac_time_digits = frac_time_digits
+        self.sig_figs = sig_figs
+        self.data_updates_only = data_updates_only
+        self.enums_as_strings = enums_as_strings
+        self.unix_timestamps_ms = unix_timestamps_ms
+        self.adjust_time_to_server_offset = adjust_time_to_server_offset
+        self.extra_opts = kwargs
+
+    def to_web_params(self) -> Dict[str, str]:
+        """Convert the objects command line parameters to their web counterparts"""
+        out = {'c': ",".join(self.pvlist),
+               'b': self.start.isoformat(),
+               'e': self.end.isoformat(),
+               'n': self.num_bins,
+               'm': self.deployment,
+               'f': self.frac_time_digits,
+               'v': self.sig_figs,
+               }
+
+        # API takes presence of some params to mean == true, and the web form uses 'on' instead of a boolean.
+        if self.data_updates_only:
+            out['d'] = 'on'
+        if self.unix_timestamps_ms:
+            out['u'] = 'on'
+        if self.adjust_time_to_server_offset:
+            out['a'] = 'on'
+
         if self.extra_opts is not None and len(self.extra_opts) > 0:
             warnings.warn(f"Using extra_opts - {self.extra_opts}")
             out.update(self.extra_opts)

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from threading import RLock
 
+# Used to support thread-safe reads and coherent snapshots of configuration
 _lock = RLock()
 
 @dataclass
@@ -26,6 +27,9 @@ class _Config:
     point_path: str = "/myquery/point"
     """The path to the point endpoint"""
 
+    mystats_path: str = "/myquery/mystats"
+    """The path to the mystats endpoint"""
+
     def set(self, **kwargs) -> None:
         """mutate-in-place API so imports never go stale"""
         with _lock:
@@ -42,6 +46,7 @@ class _Config:
                 "interval_path": self.interval_path,
                 "channel_path": self.channel_path,
                 "point_path": self.point_path,
+                "mystats_path": self.point_path,
             }
 
 config = _Config()  # singleton
