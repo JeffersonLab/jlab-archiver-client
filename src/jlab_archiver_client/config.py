@@ -1,4 +1,41 @@
-# mypkg/config.py
+"""Configuration management for the jlab_archiver_client package.
+
+This module provides a thread-safe configuration singleton for managing connection
+settings and endpoint paths for the Jefferson Lab Archiver myquery server. The
+configuration can be modified at runtime and supports safe concurrent access from
+multiple threads.
+
+The configuration uses a singleton pattern to ensure that all parts of the application
+share the same configuration state. The 'from' import pattern is supported through
+a mutate-in-place API, so imported references never go stale.
+
+Key Features:
+    * Thread-safe configuration updates and reads
+    * Singleton pattern for global configuration state
+    * Support for multiple myquery endpoints (mysampler, interval, channel, point, mystats)
+    * Runtime configuration changes without restart
+    * Consistent snapshots for atomic reads
+
+Attributes:
+    config (_Config): The global configuration singleton instance.
+
+Example::
+
+    >>> from jlab_archiver_client.config import config
+    >>> # Configure for local development server
+    >>> config.set(myquery_server="localhost:8080", protocol="http")
+    >>>
+    >>> # Configure for production server
+    >>> config.set(myquery_server="epicsweb.jlab.org", protocol="https")
+    >>>
+    >>> # Get a consistent snapshot of current configuration
+    >>> current_config = config.snapshot()
+    >>> print(current_config['myquery_server'])
+    epicsweb.jlab.org
+
+See Also:
+    jlab_archiver_client.query: Query classes that use config for endpoint URLs
+"""
 from __future__ import annotations
 from dataclasses import dataclass, field
 from threading import RLock
