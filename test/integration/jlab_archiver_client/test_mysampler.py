@@ -189,13 +189,9 @@ class TestMySampler(unittest.TestCase):
         res_disconnects = mysampler.disconnects
         res_metadata = mysampler.metadata
 
-        self.save_mysampler_data("mysampler_5", res_data, res_disconnects, res_metadata)
         exp_data, exp_disconnects, exp_metadata = self.load_mysampler_data("mysampler_5")
         exp_data = exp_data.apply(process_vector_series, axis=0)
         exp_data[exp_data.isnull()] = None
-
-        print("Result:\n", res_data, "\n", res_data.dtypes)
-        print("Expected:\n", exp_data, "\n", exp_data.dtypes)
 
         self.check_mysampler_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects,
                                res_metadata)
