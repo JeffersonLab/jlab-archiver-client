@@ -23,8 +23,12 @@ def convert_data_to_series(values: List[Any], ts: List[Any], name: str, metadata
         A pandas Series with the data converted from myquery.  Vector valued responses are converted to the
         appropriate datatype.  The index is the timestamps of each sample.
     """
+
     if metadata['datasize'] == 1:
-        data = pd.Series(values, index=ts, name=name)
+        if metadata["returnCount"] == 0:
+            data = pd.Series([], index=ts, name=name, dtype=object)
+        else:
+            data = pd.Series(values, index=ts, name=name)
     else:
         # myquery returns vector data as an array of strings.  Need to manually convert to desired format
         if metadata['datatype'] in ("DBR_DOUBLE", "DBR_FLOAT"):
