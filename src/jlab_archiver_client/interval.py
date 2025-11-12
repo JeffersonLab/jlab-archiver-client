@@ -18,6 +18,7 @@ Examples:
 
     Query a single channel and access the data:
 
+    Example::
         >>> from datetime import datetime
         >>> from jlab_archiver_client import IntervalQuery
         >>> from jlab_archiver_client import Interval
