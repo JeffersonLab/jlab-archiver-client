@@ -45,3 +45,12 @@ class TestChannel(unittest.TestCase):
                 "active": True}]
 
         self.assertEqual(exp, result)
+
+    def test_get_channel_4(self):
+        """Test a SQL wildcard pattern that returns no matches"""
+        channel = Channel(ChannelQuery(pattern="asdf%", deployment="docker"))
+        channel.run()
+        result = channel.matches
+        exp = []
+
+        self.assertEqual(exp, result)
