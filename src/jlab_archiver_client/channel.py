@@ -1,3 +1,32 @@
+"""Channel lookup module for querying archived channel names.
+
+This module provides functionality for searching and discovering Process Variable (PV)
+channel names in the Jefferson Lab Archiver using SQL-style pattern matching. The
+channel endpoint is useful for finding what channels are available in the archive
+without needing to know exact channel names.
+
+The channel query supports SQL LIKE patterns (%, _) for flexible searching.
+
+Classes:
+    Channel: Main class for executing channel lookup queries.
+
+Example::
+
+    >>> from jlab_archiver_client.config import config
+    >>> config.set(myquery_server="localhost:8080", protocol="http")
+    >>>
+    >>> from jlab_archiver_client import Channel, ChannelQuery
+    >>> # Search for all channels starting with "channel10"
+    >>> query = ChannelQuery(pattern="channel10%", deployment="docker")
+    >>> channel = Channel(query)
+    >>> channel.run()
+    >>> channel.matches
+[{'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, {'name': 'channel101', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}]
+
+See Also:
+    jlab_archiver_client.query.ChannelQuery: Query builder for channel searches
+    jlab_archiver_client.config: Configuration settings for archiver endpoints
+"""
 from typing import Optional, List, Any, Dict
 
 import requests
