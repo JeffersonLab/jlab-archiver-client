@@ -1,33 +1,216 @@
 #  jlab_archiver_client
 
-A python wrapper package on MYA utilities.
+A Python client library for querying the Jefferson Lab EPICS archiver (MYA) via the myquery web service.
 
 ## Overview
-This package provides a light wrapper on the myquery web service and makes it convenient to make data accessible for
-analysis in Python.  Data is presented in common Pandas data structures.
+This package provides a convenient Python interface to the myquery web service, making archived EPICS Process Variable (PV) data easily accessible for analysis. Data is returned in familiar pandas data structures (Series and DataFrames) with datetime indices for time-series analysis.
 
-Currently only the interval and mysampler endpoints are supported.
+The package supports multiple myquery endpoints:
+- **interval**: Retrieve all archived events for a PV over a time range
+- **mysampler**: Get regularly-spaced samples across multiple PVs
+- **mystats**: Compute statistical aggregations over time bins
+- **point**: Retrieve a single event at a specific time
+- **channel**: Search and discover available channel names
 
-## Usage
+## Key Features
+- **Pandas Integration**: All data returned as pandas Series or DataFrames
+- **Datetime Indexing**: Time-series data with proper datetime indices
+- **Disconnect Handling**: Non-update events tracked separately
+- **Parallel Queries**: Multi-channel queries with concurrent execution
+- **Type Safety**: Query builder classes with parameter validation
+- **Enum Support**: Option to convert enum values to strings
+- **Thread-Safe Config**: Runtime configuration changes supported
 
-This software can be used as an importable package.
+## See Also
+- [myquery](https://github.com/JeffersonLab/myquery)
+- [jmyapi](https://github.com/JeffersonLab/jmyapi)
+- [wave](https://github.com/JeffersonLab/wave)
+
+## Installation
 
 ```bash
 pip install git+https://github.com/JeffersonLab/jlab_archiver_client.git
 ```
 
-Then run the following python code as an example.
+## Configuration (Optional)
+
+The package come pre-configured for use with CEBAF's production myquery service.  This requires authentication when used offsite, which this package does not currently support.
+
+If you need to access a non-standard myquery or the development container bundled in this repo, then configure the myquery server first.
 
 ```python
-import jlab_archiver_client as jac
-from datetime import datetime, timedelta
+from jlab_archiver_client.config import config
 
-# Take samples starting one hour ago, at one minute intervals (60,000 ms), and take 60 samples.
-query = jac.MySamplerQuery(start=(datetime.now() - timedelta(hours=1)), interval=60_000, num_samples=60,
-                          pvlist=['R123GMES'])
-mysampler = jac.MySampler(query)
-mysampler.run()
-data_df, disconnection_dict, metadata_dict = mysampler.data, mysampler.disconnects, mysampler.metadata
+# For production
+config.set(myquery_server="epicsweb.jlab.org", protocol="https")
 
-print(data_df.head())
+# For local development/testing
+config.set(myquery_server="localhost:8080", protocol="http")
 ```
+
+## Usage Examples
+
+### MySampler - Regularly Sampled Data
+
+Query multiple PVs at regularly spaced time intervals. Useful for synchronized sampling across channels.
+
+```python
+from jlab_archiver_client import MySampler, MySamplerQuery
+from datetime import datetime
+
+# Query two channels with 30-minute intervals
+query = MySamplerQuery(
+    start=datetime.strptime("2019-08-12 00:00:00", "%Y-%m-%d %H:%M:%S"),
+    interval=1_800_000,  # 30 minutes in milliseconds
+    num_samples=15,
+    pvlist=["channel1", "channel2"],
+    enums_as_strings=True,
+    deployment="docker"
+)
+
+mysampler = MySampler(query)
+mysampler.run()
+
+# Access the data as a DataFrame with datetime index
+print(mysampler.data)
+#                      channel1      channel2
+# Date
+# 2019-08-12 00:00:00       NaN          None
+# 2019-08-12 00:30:00   95.9706          None
+# 2019-08-12 01:00:00   95.3033  CW MODE (DC)
+# ...
+
+# Access disconnect events
+print(mysampler.disconnects)
+
+# Access channel metadata
+print(mysampler.metadata)
+```
+
+### Interval - All Events in Time Range
+
+Retrieve all archived events for a single PV. Best for detailed event history.  Also includes option to run multiple interval queries in parallel and return combined results.  This results in a single DataFrame with a row for each timestamp that any *single* channel updated.
+
+```python
+from jlab_archiver_client import Interval, IntervalQuery
+from datetime import datetime
+
+# Query a single channel for all events
+query = IntervalQuery(
+    channel="channel100",
+    begin=datetime(2018, 4, 24),
+    end=datetime(2018, 5, 1),
+    deployment="docker"
+)
+
+interval = Interval(query)
+interval.run()
+
+# Access data as a pandas Series
+print(interval.data)
+# 2018-04-24 06:25:01    0.000
+# 2018-04-24 06:25:05    5.911
+# 2018-04-24 11:18:19    5.660
+# ...
+
+# Access disconnect events separately
+print(interval.disconnects)
+
+# For multiple channels, use parallel queries
+data, disconnects, metadata = Interval.run_parallel(
+    pvlist=["channel2", "channel3"],
+    begin=datetime(2019, 8, 12, 0, 0, 0),
+    end=datetime(2019, 8, 12, 1, 20, 45),
+    deployment="docker",
+    prior_point=True
+)
+```
+
+### MyStats - Statistical Aggregations
+
+Compute statistics (min, max, mean, etc.) over time bins. Efficient for analyzing trends.
+
+Note: Statistical computations are performed on the myquery server which saves on outbound traffic, but still requires all data be streamed to the myquery server.
+
+```python
+from jlab_archiver_client import MyStats, MyStatsQuery
+from datetime import datetime
+import pandas as pd
+
+# Query statistics with 1-hour bins
+query = MyStatsQuery(
+    start=datetime.strptime("2019-08-12 00:00:00", "%Y-%m-%d %H:%M:%S"),
+    end=datetime.strptime("2019-08-13 00:00:00", "%Y-%m-%d %H:%M:%S"),
+    num_bins=24,  # 24 bins (one hour per bin)
+    pvlist=["channel1", "channel100"],
+    deployment="docker"
+)
+
+mystats = MyStats(query)
+mystats.run()
+
+# Access data as MultiIndex DataFrame (timestamp, stat)
+print(mystats.data)
+#                                   channel1    channel100
+# timestamp           stat
+# 2019-08-12 00:00:00 duration    3594.421033   3600.000000
+#                     eventCount  1716.000000      2.000000
+#                     max           96.952400      5.658000
+#                     mean          94.964400      5.658000
+# ...
+
+# Query specific statistics at a time
+print(mystats.data.loc['2019-08-12 00:00:00'])
+
+# Query specific stat and time
+print(mystats.data.loc[(pd.Timestamp('2019-08-12 00:00:00'), 'mean'), 'channel1'])
+# 94.9644
+
+# Query a range of times and stats using IndexSlice
+idx = pd.IndexSlice
+print(mystats.data.loc[idx['2019-08-12 00:00:00':'2019-08-12 12:00:00', ['mean', 'max']], :])
+```
+
+### Point - Single Event Query
+
+Retrieve a single event at or near a specific timestamp.
+
+```python
+from jlab_archiver_client import Point, PointQuery
+from datetime import datetime
+
+# Get the event at or before a specific time
+query = PointQuery(
+    channel="channel1",
+    time=datetime.strptime("2019-08-12 12:00:00", "%Y-%m-%d %H:%M:%S"),
+    deployment="docker"
+)
+
+point = Point(query)
+point.run()
+
+# Access event data
+print(point.event)
+# {'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya',
+#  'data': {'d': '2019-08-12 11:55:22', 'v': 6.20794}}
+```
+
+### Channel - Search for Channels
+
+Discover available channels and their metadata using SQL-style pattern matching.
+
+```python
+from jlab_archiver_client import Channel, ChannelQuery
+
+# Search for all channels starting with "channel10"
+query = ChannelQuery(pattern="channel10%", deployment="docker")
+
+channel = Channel(query)
+channel.run()
+
+# Access matching channels
+print(channel.matches)
+# [{'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, ...},
+#  {'name': 'channel101', 'datatype': 'DBR_DOUBLE', 'datasize': 1, ...}]
+```
+
