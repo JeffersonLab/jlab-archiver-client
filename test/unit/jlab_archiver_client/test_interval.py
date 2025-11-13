@@ -1,15 +1,10 @@
 import os
 import unittest
-import json
-from datetime import datetime
-from typing import Dict
 
 import numpy as np
 import pandas as pd
 
 from jlab_archiver_client.interval import Interval
-from jlab_archiver_client.query import IntervalQuery
-from jlab_archiver_client.utils import json_normalize
 
 
 DIR = os.path.dirname(__file__)
