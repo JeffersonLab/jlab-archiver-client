@@ -1,3 +1,41 @@
+"""Query builder classes for Jefferson Lab Archiver myquery endpoints.
+
+This module provides query builder classes for constructing requests to various
+Jefferson Lab Archiver myquery service endpoints. Each query class encapsulates
+the parameters needed for a specific endpoint and handles conversion to web
+request parameters.
+
+The query classes serve as parameter containers that are passed to their
+corresponding client classes (MySampler, MyStats, Interval, Point, Channel)
+which execute the queries and process the results.
+
+Key Features:
+    * Type-safe query parameter validation
+    * Automatic conversion to myquery web API format
+    * Support for all major myquery endpoints
+    * Extensible via kwargs for future API changes
+    * Consistent interface across different query types
+
+Classes:
+    Query: Abstract base class for all query types.
+    IntervalQuery: Query for retrieving all events in a time range from the interval end point.
+    MySamplerQuery: Query for regularly sampled data across multiple PVs from the mysampler endpoint.
+    MyStatsQuery: Query for statistical aggregations over time bins from the mystats endpoint.
+    ChannelQuery: Query for searching/discovering channel names from the channel endpoint.
+    PointQuery: Query for retrieving a single event at a specific time from the point endpoint.
+
+Note:
+    All query classes support additional parameters via **kwargs to allow for
+    future API extensions. Using kwargs will generate a warning to prevent
+    accidental misuse.
+
+See Also:
+    jlab_archiver_client.mysampler: MySampler client for MySamplerQuery
+    jlab_archiver_client.mystats: MyStats client for MyStatsQuery
+    jlab_archiver_client.interval: Interval client for IntervalQuery
+    jlab_archiver_client.point: Point client for PointQuery
+    jlab_archiver_client.channel: Channel client for ChannelQuery
+"""
 import warnings
 from datetime import datetime
 from typing import Optional, List, Dict
