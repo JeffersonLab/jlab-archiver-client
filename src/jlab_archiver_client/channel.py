@@ -21,7 +21,7 @@ Example::
     >>> channel = Channel(query)
     >>> channel.run()
     >>> channel.matches
-[{'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, {'name': 'channel101', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}]
+    [{'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, {'name': 'channel101', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}]
 
 See Also:
     jlab_archiver_client.query.ChannelQuery: Query builder for channel searches
