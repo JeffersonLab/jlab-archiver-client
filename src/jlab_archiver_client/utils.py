@@ -1,4 +1,4 @@
-
+"""Utility functions for processing data from myquery."""
 from typing import Any, Dict, List
 
 import numpy as np
