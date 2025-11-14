@@ -135,3 +135,7 @@ dmypy.json
 # IDE
 .idea
 pvs-rf-ndx-ibc.txt
+
+# Sphinx
+docsrc/source/_autosummary
+docsrc/build
