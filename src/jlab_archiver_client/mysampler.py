@@ -40,20 +40,20 @@ Typical Usage:
         >>> mysampler = MySampler(query)
         >>> mysampler.run()
         >>> mysampler.data
-                     channel1      channel2
-Date
-2019-08-12 00:00:00       NaN          None
-2019-08-12 00:30:00   95.9706          None
-2019-08-12 01:00:00   95.3033  CW MODE (DC)
-2019-08-12 01:30:00   94.3594  CW MODE (DC)
-2019-08-12 02:00:00   94.8114  CW MODE (DC)
-        >>> mysampler.disconnects
-{'channel1': 2019-08-12T00:00:00    UNDEFINED
-Name: channel1, dtype: object, 'channel2': 2019-08-12T00:00:00    UNDEFINED
-2019-08-12T00:30:00    UNDEFINED
-Name: channel2, dtype: object}
+                             channel1      channel2
+        Date
+        2019-08-12 00:00:00       NaN          None
+        2019-08-12 00:30:00   95.9706          None
+        2019-08-12 01:00:00   95.3033  CW MODE (DC)
+        2019-08-12 01:30:00   94.3594  CW MODE (DC)
+        2019-08-12 02:00:00   94.8114  CW MODE (DC)
+                >>> mysampler.disconnects
+        {'channel1': 2019-08-12T00:00:00    UNDEFINED
+        Name: channel1, dtype: object, 'channel2': 2019-08-12T00:00:00    UNDEFINED
+        2019-08-12T00:30:00    UNDEFINED
+        Name: channel2, dtype: object}
         >>> mysampler.metadata
-{'channel1': {'metadata': {'name': 'channel1', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, 'returnCount': 15}, 'channel2': {'metadata': {'name': 'channel2', 'datatype': 'DBR_ENUM', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, 'labels': [{'d': '2016-08-12T13:00:49', 'value': ['BEAM SYNC ONLY', 'PULSE MODE VL', 'TUNE MODE', 'CW MODE (DC)', 'USER MODE']}], 'returnCount': 15}}
+        {'channel1': {'metadata': {'name': 'channel1', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, 'returnCount': 15}, 'channel2': {'metadata': {'name': 'channel2', 'datatype': 'DBR_ENUM', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, 'labels': [{'d': '2016-08-12T13:00:49', 'value': ['BEAM SYNC ONLY', 'PULSE MODE VL', 'TUNE MODE', 'CW MODE (DC)', 'USER MODE']}], 'returnCount': 15}}
 
 
 Note:

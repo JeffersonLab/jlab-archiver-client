@@ -36,64 +36,63 @@ Example::
     >>> mystats = MyStats(query)
     >>> mystats.run()
     >>> mystats.data  # MultiIndex DataFrame with (timestamp, stat)
-                                      channel1    channel100
-timestamp           stat
-2019-08-12 00:00:00 duration       3594.421033   3600.000000
-                    eventCount     1716.000000      2.000000
-                    integration  341342.201073  20368.799973
-                    max              96.952400      5.658000
-                    mean             94.964400      5.658000
-...                                        ...           ...
-2019-08-12 23:00:00 mean             92.036600      5.658000
-                    min               0.000000      5.658000
-                    rms              93.545500      5.658000
-                    stdev            16.733800      0.000000
-                    updateCount    1606.000000      1.000000
+                                          channel1    channel100
+    timestamp           stat
+    2019-08-12 00:00:00 duration       3594.421033   3600.000000
+                        eventCount     1716.000000      2.000000
+                        integration  341342.201073  20368.799973
+                        max              96.952400      5.658000
+                        mean             94.964400      5.658000
+    ...                                        ...           ...
+    2019-08-12 23:00:00 mean             92.036600      5.658000
+                        min               0.000000      5.658000
+                        rms              93.545500      5.658000
+                        stdev            16.733800      0.000000
+                        updateCount    1606.000000      1.000000
     >>> mystats.data.loc['2019-08-12 00:00:00'] # Query all stats at a specific time
-                  channel1    channel100
-stat
-duration       3594.421033   3600.000000
-eventCount     1716.000000      2.000000
-integration  341342.201073  20368.799973
-max              96.952400      5.658000
-mean             94.964400      5.658000
-min               0.000000      5.658000
-rms              95.267500      5.658000
+                      channel1    channel100
+    stat
+    duration       3594.421033   3600.000000
+    eventCount     1716.000000      2.000000
+    integration  341342.201073  20368.799973
+    max              96.952400      5.658000
+    mean             94.964400      5.658000
+    min               0.000000      5.658000
+    rms              95.267500      5.658000
     >>> mystats.data.loc[(pd.Timestamp('2019-08-12 00:00:00'), 'mean'), 'channel1'] # Query a specific stat at a specific time
     94.9644
     >>> idx = pd.IndexSlice  # Setup to query a slice of times and stats
     >>> mystats.data.loc[idx['2019-08-12 00:00:00':'2019-08-12 12:00:00', ['mean', 'max']], :]
-                          channel1  channel100
-timestamp           stat
-2019-08-12 00:00:00 max    96.9524       5.658
-                    mean   94.9644       5.658
-2019-08-12 01:00:00 max    96.1750       5.658
-                    mean   84.4616       5.658
-2019-08-12 02:00:00 max    96.2040       5.658
-                    mean   85.8309       5.658
-2019-08-12 03:00:00 max    96.6146       5.658
-                    mean   91.1273       5.658
-2019-08-12 04:00:00 max    97.7953       5.658
-                    mean   94.3502       5.658
-2019-08-12 05:00:00 max    98.8530       5.658
-                    mean   95.6387       5.658
-2019-08-12 06:00:00 max    98.5217       5.658
-                    mean   71.1526       5.658
-2019-08-12 07:00:00 max    98.9699       5.658
-                    mean   89.9230       5.658
-2019-08-12 08:00:00 max    96.5996       5.658
-                    mean   38.1108       5.658
-2019-08-12 09:00:00 max    95.3031       5.658
-                    mean   56.5888       5.658
-2019-08-12 10:00:00 max    97.7024       5.658
-                    mean   94.0369       5.658
-2019-08-12 11:00:00 max    97.6824       5.658
-                    mean   77.0781       5.658
-2019-08-12 12:00:00 max    38.3621       5.658
-                    mean   32.7660       5.658
+                              channel1  channel100
+    timestamp           stat
+    2019-08-12 00:00:00 max    96.9524       5.658
+                        mean   94.9644       5.658
+    2019-08-12 01:00:00 max    96.1750       5.658
+                        mean   84.4616       5.658
+    2019-08-12 02:00:00 max    96.2040       5.658
+                        mean   85.8309       5.658
+    2019-08-12 03:00:00 max    96.6146       5.658
+                        mean   91.1273       5.658
+    2019-08-12 04:00:00 max    97.7953       5.658
+                        mean   94.3502       5.658
+    2019-08-12 05:00:00 max    98.8530       5.658
+                        mean   95.6387       5.658
+    2019-08-12 06:00:00 max    98.5217       5.658
+                        mean   71.1526       5.658
+    2019-08-12 07:00:00 max    98.9699       5.658
+                        mean   89.9230       5.658
+    2019-08-12 08:00:00 max    96.5996       5.658
+                        mean   38.1108       5.658
+    2019-08-12 09:00:00 max    95.3031       5.658
+                        mean   56.5888       5.658
+    2019-08-12 10:00:00 max    97.7024       5.658
+                        mean   94.0369       5.658
+    2019-08-12 11:00:00 max    97.6824       5.658
+                        mean   77.0781       5.658
+    2019-08-12 12:00:00 max    38.3621       5.658
+                        mean   32.7660       5.658
     >>> mystats.metadata  # Channel metadata dictionary
-{'channel1': {'name': 'channel1', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, 'channel100': {'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}}
-
+    {'channel1': {'name': 'channel1', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}, 'channel100': {'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'ioc': None, 'active': True}}
 
 Note:
     Only float-type PVs are currently supported by the mystats endpoint.
