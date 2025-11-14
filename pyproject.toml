@@ -35,6 +35,13 @@ dev = [
     'pylint >=3.3, < 4.0'
 ]
 
+[project.scripts]
+jac-interval = "jlab_archiver_client.scripts:interval_main"
+jac-mysampler = "jlab_archiver_client.scripts:mysampler_main"
+jac-mystats = "jlab_archiver_client.scripts:mystats_main"
+jac-point = "jlab_archiver_client.scripts:point_main"
+jac-channel = "jlab_archiver_client.scripts:channel_main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
