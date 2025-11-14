@@ -25,16 +25,16 @@ Classes:
     PointQuery: Query for retrieving a single event at a specific time from the point endpoint.
 
 Note:
-    All query classes support additional parameters via **kwargs to allow for
+    All query classes support additional parameters via \*\*kwargs to allow for
     future API extensions. Using kwargs will generate a warning to prevent
     accidental misuse.
 
 See Also:
-    jlab_archiver_client.mysampler: MySampler client for MySamplerQuery
-    jlab_archiver_client.mystats: MyStats client for MyStatsQuery
-    jlab_archiver_client.interval: Interval client for IntervalQuery
-    jlab_archiver_client.point: Point client for PointQuery
-    jlab_archiver_client.channel: Channel client for ChannelQuery
+    * jlab_archiver_client.mysampler: MySampler client for MySamplerQuery
+    * jlab_archiver_client.mystats: MyStats client for MyStatsQuery
+    * jlab_archiver_client.interval: Interval client for IntervalQuery
+    * jlab_archiver_client.point: Point client for PointQuery
+    * jlab_archiver_client.channel: Channel client for ChannelQuery
 """
 import warnings
 from datetime import datetime
