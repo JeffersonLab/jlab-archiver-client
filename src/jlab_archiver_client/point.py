@@ -91,3 +91,4 @@ class Point:
             raise requests.RequestException(f"Error contacting server. status={r.status_code}")
 
         self.event = r.json()
+        self.event['name'] = self.query.channel

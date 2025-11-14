@@ -16,7 +16,7 @@ class TestPointQuery(unittest.TestCase):
                                  ))
         point.run()
         result = point.event
-        exp = {'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya',
+        exp = {'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya',
                'data': {'d': '2018-04-24 11:18:19', 'v': 5.66}}
         self.assertDictEqual(exp, result)
 
@@ -34,7 +34,7 @@ class TestPointQuery(unittest.TestCase):
                                  ))
         point.run()
         result = point.event
-        exp = {'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya',
+        exp = {'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya',
                'data': {'d': '2018-04-24 12:31:11.397', 'v': 5.7}}
         self.assertDictEqual(exp, result)
 
@@ -53,5 +53,5 @@ class TestPointQuery(unittest.TestCase):
                                  ))
         point.run()
         result = point.event
-        exp = {'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'data': {'d': 1524587471397, 'v': 5.7}}
+        exp = {'name': 'channel100', 'datatype': 'DBR_DOUBLE', 'datasize': 1, 'datahost': 'mya', 'data': {'d': 1524587471397, 'v': 5.7}}
         self.assertDictEqual(exp, result)
