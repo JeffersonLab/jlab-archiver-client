@@ -52,7 +52,7 @@ version = { file = "VERSION" }
 pythonpath = ["src"]
 testpaths = ["test/unit", "test/integration"]
 norecursedirs = [".git", "node_modules", "venv"]
-addopts = "--cov=pymyquery --cov-fail-under=80"
+addopts = "--cov=jlab_archiver_client --cov-fail-under=80"
 
 [tool.pylint]
 max-line-length = 120
