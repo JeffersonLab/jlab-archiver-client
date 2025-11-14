@@ -114,8 +114,8 @@ def interval_main():
                         help='Start time (ISO format or "YYYY-MM-DD HH:MM:SS")')
     parser.add_argument('-e', '--end', required=True, type=str,
                         help='End time (ISO format or "YYYY-MM-DD HH:MM:SS")')
-    parser.add_argument('-o', '--output', required=True, type=str,
-                        help='Output file path (.csv or .json)')
+    parser.add_argument('-o', '--output', required=False, type=str, default=None,
+                        help='Output file path (.csv or .json). If not specified, outputs to stdout')
 
     # Optional query parameters
     parser.add_argument('-m', '--deployment', type=str, default='history',
@@ -187,7 +187,15 @@ def interval_main():
         interval.run()
 
         # Save output
-        if args.output.endswith('.json'):
+        if args.output is None:
+            # Output to stdout as JSON
+            output_data = {
+                'data': interval.data.to_dict(),
+                'disconnects': interval.disconnects.to_dict() if interval.disconnects is not None else {},
+                'metadata': interval.metadata
+            }
+            print(json.dumps(output_data, indent=2, default=str))
+        elif args.output.endswith('.json'):
             output_data = {
                 'data': interval.data.to_dict(),
                 'disconnects': interval.disconnects.to_dict() if interval.disconnects is not None else {},
@@ -195,13 +203,13 @@ def interval_main():
             }
             with open(args.output, 'w') as f:
                 json.dump(output_data, f, indent=2, default=str)
+            print(f"Successfully saved results to {args.output}")
         elif args.output.endswith('.csv'):
             interval.data.to_csv(args.output)
+            print(f"Successfully saved results to {args.output}")
         else:
             print("Error: Output file must be .csv or .json", file=sys.stderr)
             sys.exit(1)
-
-        print(f"Successfully saved results to {args.output}")
 
     except Exception as e:
         print(f"Error executing query: {e}", file=sys.stderr)
@@ -226,8 +234,8 @@ def mysampler_main():
                         help='Interval between samples in milliseconds')
     parser.add_argument('-n', '--num-samples', required=True, type=int,
                         help='Number of samples to retrieve')
-    parser.add_argument('-o', '--output', required=True, type=str,
-                        help='Output file path (.csv or .json)')
+    parser.add_argument('-o', '--output', required=False, type=str, default=None,
+                        help='Output file path (.csv or .json). If not specified, outputs to stdout')
 
     # Optional query parameters
     parser.add_argument('-m', '--deployment', type=str, default='history',
@@ -280,7 +288,15 @@ def mysampler_main():
         mysampler.run()
 
         # Save output
-        if args.output.endswith('.json'):
+        if args.output is None:
+            # Output to stdout as JSON
+            output_data = {
+                'data': mysampler.data.to_dict(),
+                'disconnects': {k: v.to_dict() for k, v in mysampler.disconnects.items()} if mysampler.disconnects else {},
+                'metadata': mysampler.metadata
+            }
+            print(json.dumps(output_data, indent=2, default=str))
+        elif args.output.endswith('.json'):
             output_data = {
                 'data': mysampler.data.to_dict(),
                 'disconnects': {k: v.to_dict() for k, v in mysampler.disconnects.items()} if mysampler.disconnects else {},
@@ -288,13 +304,13 @@ def mysampler_main():
             }
             with open(args.output, 'w') as f:
                 json.dump(output_data, f, indent=2, default=str)
+            print(f"Successfully saved results to {args.output}")
         elif args.output.endswith('.csv'):
             mysampler.data.to_csv(args.output)
+            print(f"Successfully saved results to {args.output}")
         else:
             print("Error: Output file must be .csv or .json", file=sys.stderr)
             sys.exit(1)
-
-        print(f"Successfully saved results to {args.output}")
 
     except Exception as e:
         print(f"Error executing query: {e}", file=sys.stderr)
@@ -317,8 +333,8 @@ def mystats_main():
                         help='Start time (ISO format or "YYYY-MM-DD HH:MM:SS")')
     parser.add_argument('-e', '--end', required=True, type=str,
                         help='End time (ISO format or "YYYY-MM-DD HH:MM:SS")')
-    parser.add_argument('-o', '--output', required=True, type=str,
-                        help='Output file path (.csv or .json)')
+    parser.add_argument('-o', '--output', required=False, type=str, default=None,
+                        help='Output file path (.csv or .json). If not specified, outputs to stdout')
 
     # Optional query parameters
     parser.add_argument('--num-bins', type=int, default=1,
@@ -380,20 +396,27 @@ def mystats_main():
         mystats.run()
 
         # Save output
-        if args.output.endswith('.json'):
+        if args.output is None:
+            # Output to stdout as JSON
+            output_data = {
+                'data': mystats.data.to_dict(),
+                'metadata': mystats.metadata
+            }
+            print(json.dumps(output_data, indent=2, default=str))
+        elif args.output.endswith('.json'):
             output_data = {
                 'data': mystats.data.to_dict(),
                 'metadata': mystats.metadata
             }
             with open(args.output, 'w') as f:
                 json.dump(output_data, f, indent=2, default=str)
+            print(f"Successfully saved results to {args.output}")
         elif args.output.endswith('.csv'):
             mystats.data.to_csv(args.output)
+            print(f"Successfully saved results to {args.output}")
         else:
             print("Error: Output file must be .csv or .json", file=sys.stderr)
             sys.exit(1)
-
-        print(f"Successfully saved results to {args.output}")
 
     except Exception as e:
         print(f"Error executing query: {e}", file=sys.stderr)
@@ -414,8 +437,8 @@ def point_main():
                         help='PV channel name to query')
     parser.add_argument('-t', '--time', required=True, type=str,
                         help='Time to query (ISO format or "YYYY-MM-DD HH:MM:SS")')
-    parser.add_argument('-o', '--output', required=True, type=str,
-                        help='Output file path (.json)')
+    parser.add_argument('-o', '--output', required=False, type=str, default=None,
+                        help='Output file path (.json). If not specified, outputs to stdout')
 
     # Optional query parameters
     parser.add_argument('-m', '--deployment', type=str, default='history',
@@ -478,14 +501,16 @@ def point_main():
         point.run()
 
         # Save output (JSON only for point queries)
-        if args.output.endswith('.json'):
+        if args.output is None:
+            # Output to stdout as JSON
+            print(json.dumps(point.event, indent=2, default=str))
+        elif args.output.endswith('.json'):
             with open(args.output, 'w') as f:
                 json.dump(point.event, f, indent=2, default=str)
+            print(f"Successfully saved results to {args.output}")
         else:
             print("Error: Output file must be .json for point queries", file=sys.stderr)
             sys.exit(1)
-
-        print(f"Successfully saved results to {args.output}")
 
     except Exception as e:
         print(f"Error executing query: {e}", file=sys.stderr)
@@ -504,8 +529,8 @@ def channel_main():
     # Required arguments
     parser.add_argument('-p', '--pattern', required=True, type=str,
                         help='SQL pattern to match (use %% for wildcard, _ for single char)')
-    parser.add_argument('-o', '--output', required=True, type=str,
-                        help='Output file path (.json)')
+    parser.add_argument('-o', '--output', required=False, type=str, default=None,
+                        help='Output file path (.json). If not specified, outputs to stdout')
 
     # Optional query parameters
     parser.add_argument('-m', '--deployment', type=str, default='history',
@@ -540,14 +565,16 @@ def channel_main():
         channel.run()
 
         # Save output (JSON only for channel queries)
-        if args.output.endswith('.json'):
+        if args.output is None:
+            # Output to stdout as JSON
+            print(json.dumps(channel.matches, indent=2, default=str))
+        elif args.output.endswith('.json'):
             with open(args.output, 'w') as f:
                 json.dump(channel.matches, f, indent=2, default=str)
+            print(f"Successfully saved {len(channel.matches)} results to {args.output}")
         else:
             print("Error: Output file must be .json for channel queries", file=sys.stderr)
             sys.exit(1)
-
-        print(f"Successfully saved {len(channel.matches)} results to {args.output}")
 
     except Exception as e:
         print(f"Error executing query: {e}", file=sys.stderr)
