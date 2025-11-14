@@ -9,7 +9,7 @@ import pandas as pd
 
 from jlab_archiver_client import MySampler
 from jlab_archiver_client import MySamplerQuery
-from jlab_archiver_client.utils import json_normalize
+from .utils import json_normalize
 
 
 DIR = os.path.dirname(__file__)
