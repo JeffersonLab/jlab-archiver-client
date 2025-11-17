@@ -31,7 +31,7 @@ jobs:
       - name: lint
         continue-on-error: true
         run:
-          pylint src/ test/unit test/integration
+          ruff check
       - name: test
         run:
           pytest
