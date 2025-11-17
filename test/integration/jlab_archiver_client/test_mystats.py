@@ -1,5 +1,4 @@
 import unittest
-import json
 import warnings
 from datetime import datetime
 from typing import Tuple, Any, Dict
@@ -160,7 +159,8 @@ class TestMyStats(unittest.TestCase):
             mystats.run()
             self.assertEqual(len(w), 1)
             self.assertEqual(str(w[0].message),
-                             "Error querying channel2: This myStats only supports FloatEvents - not 'org.jlab.mya.event.IntEvent'.")
+                             "Error querying channel2: This myStats only supports FloatEvents - not"
+                             " 'org.jlab.mya.event.IntEvent'.")
 
         res_data, res_metadata = mystats.data, mystats.metadata
 

@@ -103,7 +103,7 @@ Note:
 See Also:
     jlab_archiver_client.query.MyStatsQuery: Query builder for mystats requests
     jlab_archiver_client.config: Configuration settings for archiver endpoints
-"""
+"""# noqa: E501
 import warnings
 from typing import Optional, Dict, Any
 
@@ -176,7 +176,7 @@ class MyStats:
         r = requests.get(self.url, params=opts)
 
         # Check if we have any errors
-        if r.status_code != 200:
+        if r.status_code != requests.codes.OK:
             raise requests.RequestException(f"Error contacting server. status={r.status_code} details={r.text}")
 
         # Single top level key is channels

@@ -379,7 +379,9 @@ class TestMyStatsMain(unittest.TestCase):
         # Mock the MyStats instance
         mock_mystats = MagicMock()
         mock_mystats.data = pd.DataFrame({'pv1': [1.0, 2.0, 3.0, 4.0], 'pv2': [10, 20, 30, 40]},
-                                           index=pd.MultiIndex.from_product([pd.to_datetime(['2023-05-09 12:00:00', '2023-05-09 13:00:00']), ['stat1', 'stat2']]))
+                                         index=pd.MultiIndex.from_product(
+                                             [pd.to_datetime(['2023-05-09 12:00:00', '2023-05-09 13:00:00']),
+                                              ['stat1', 'stat2']]))
         mock_mystats.metadata = {'meta': 'info'}
         mock_mystats_class.return_value = mock_mystats
 

@@ -87,7 +87,7 @@ class Point:
         opts = self.query.to_web_params()
         r = requests.get(self.url, params=opts)
 
-        if r.status_code != 200:
+        if r.status_code != requests.codes.OK:
             raise requests.RequestException(f"Error contacting server. status={r.status_code} details={r.text}")
 
         self.event = r.json()

@@ -31,7 +31,10 @@ def process_vector_series(x: pd.Series):
         elif isinstance(val, float):
             pass
         elif isinstance(val, object):
+            # This seems to work, but IDE throws a warning.
+            # noinspection PyUnresolvedReferences
             if val.str.startswith("[") and val.str.endswith("]"):
+                # noinspection PyUnresolvedReferences
                 x[i] = np.fromstring(val.str.strip("[]"), sep=" ", dtype=float)
 
     return x

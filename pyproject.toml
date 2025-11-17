@@ -63,5 +63,6 @@ include = ["src/**/*.py", "test/unit/**/*.py", "test/integration/**/*.py"]
 select = ["E", "W", "F", "PL"]
 
 [tool.ruff.lint.pylint]
-max-args = 8
+# Higher max-args allows query objects to match myquery API
+max-args = 14
 max-public-methods = 20

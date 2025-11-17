@@ -26,7 +26,7 @@ Example::
 See Also:
     jlab_archiver_client.query.ChannelQuery: Query builder for channel searches
     jlab_archiver_client.config: Configuration settings for archiver endpoints
-"""
+""" # noqa: E501
 from typing import Optional, List, Any, Dict
 
 import requests
@@ -64,7 +64,7 @@ class Channel:
         opts = self.query.to_web_params()
         r = requests.get(self.url, params=opts)
 
-        if r.status_code != 200:
+        if r.status_code != requests.codes.OK:
             raise requests.RequestException(f"Error contacting server. status={r.status_code} details={r.text}")
 
         content = r.json()
