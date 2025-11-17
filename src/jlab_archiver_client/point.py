@@ -88,7 +88,7 @@ class Point:
         r = requests.get(self.url, params=opts)
 
         if r.status_code != 200:
-            raise requests.RequestException(f"Error contacting server. status={r.status_code}")
+            raise requests.RequestException(f"Error contacting server. status={r.status_code} details={r.text}")
 
         self.event = r.json()
         self.event['name'] = self.query.channel

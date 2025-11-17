@@ -177,7 +177,7 @@ class MyStats:
 
         # Check if we have any errors
         if r.status_code != 200:
-            raise requests.RequestException(f"Error contacting server. status={r.status_code}")
+            raise requests.RequestException(f"Error contacting server. status={r.status_code} details={r.text}")
 
         # Single top level key is channels
         channels = r.json()['channels']
