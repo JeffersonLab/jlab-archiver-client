@@ -32,7 +32,7 @@ dev = [
     'sphinx-autodoc-typehints >= 3.0, < 4.0',
     'sphinx-rtd-theme >= 3.0, < 4.0',
     'myst-parser >= 4.0.1, < 5.0',
-    'pylint >=4.0.3, < 5.0',
+    'ruff >= 0.8.0, < 1.0',
 ]
 
 [project.scripts]
@@ -54,7 +54,14 @@ testpaths = ["test/unit", "test/integration"]
 norecursedirs = [".git", "node_modules", "venv"]
 addopts = "--cov=jlab_archiver_client --cov-fail-under=80"
 
-[tool.pylint]
-max-line-length = 120
-max-attributes = 12
+[tool.ruff]
+line-length = 120
+include = ["src/**/*.py", "test/unit/**/*.py", "test/integration/**/*.py"]
+
+[tool.ruff.lint]
+# Enable pycodestyle (E, W), pyflakes (F), and pylint (PL) rules
+select = ["E", "W", "F", "PL"]
+
+[tool.ruff.lint.pylint]
 max-args = 8
+max-public-methods = 20
