@@ -118,12 +118,15 @@ def json_normalize(obj: Any) -> Any:
     Returns:
         Converted object, ready for JSON serialization with json.JSONEncoder.
     """
+
     if isinstance(obj, pd.Series):
         # Does not support "split".  => {"__type__: "series", idx1: val1, idx2:val2, ...}
-        return {"__type__": "series", **obj.to_dict()}
+        # Recursively normalize to handle nested pandas structures (pd.Timestamp, etc.)
+        return {"__type__": "series", **json_normalize(obj.to_dict())}
     if isinstance(obj, pd.DataFrame):
         # split => {"index": [], "columns": [], "data": []}
-        return {"__type__": "dataframe", **obj.to_dict(orient="split")}
+        # Recursively normalize to handle nested pandas structures (pd.Timestamp, etc.)
+        return {"__type__": "dataframe", **json_normalize(obj.to_dict(orient="split"))}
     if isinstance(obj, np.ndarray):
         return obj.tolist()
     if isinstance(obj, (np.integer, np.floating, np.bool_)):

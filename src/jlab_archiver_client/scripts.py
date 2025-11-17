@@ -50,6 +50,7 @@ from jlab_archiver_client.mysampler import MySampler
 from jlab_archiver_client.mystats import MyStats
 from jlab_archiver_client.point import Point
 from jlab_archiver_client.channel import Channel
+from jlab_archiver_client.utils import json_normalize
 
 
 def _parse_datetime(dt_str: str) -> datetime:
@@ -189,18 +190,18 @@ def interval_main():
         # Save output
         if args.output is None:
             # Output to stdout as JSON
-            output_data = {
-                'data': interval.data.to_dict(),
-                'disconnects': interval.disconnects.to_dict() if interval.disconnects is not None else {},
+            output_data = json_normalize({
+                'data': interval.data,
+                'disconnects': interval.disconnects,
                 'metadata': interval.metadata
-            }
+            })
             print(json.dumps(output_data, indent=2, default=str))
         elif args.output.endswith('.json'):
-            output_data = {
-                'data': interval.data.to_dict(),
-                'disconnects': interval.disconnects.to_dict() if interval.disconnects is not None else {},
+            output_data = json_normalize({
+                'data': interval.data,
+                'disconnects': interval.disconnects,
                 'metadata': interval.metadata
-            }
+            })
             with open(args.output, 'w') as f:
                 json.dump(output_data, f, indent=2, default=str)
             print(f"Successfully saved results to {args.output}")
@@ -290,18 +291,18 @@ def mysampler_main():
         # Save output
         if args.output is None:
             # Output to stdout as JSON
-            output_data = {
-                'data': mysampler.data.to_dict(),
-                'disconnects': {k: v.to_dict() for k, v in mysampler.disconnects.items()} if mysampler.disconnects else {},
+            output_data = json_normalize({
+                'data': mysampler.data,
+                'disconnects': mysampler.disconnects,
                 'metadata': mysampler.metadata
-            }
+            })
             print(json.dumps(output_data, indent=2, default=str))
         elif args.output.endswith('.json'):
-            output_data = {
-                'data': mysampler.data.to_dict(),
-                'disconnects': {k: v.to_dict() for k, v in mysampler.disconnects.items()} if mysampler.disconnects else {},
+            output_data = json_normalize({
+                'data': mysampler.data,
+                'disconnects': mysampler.disconnects,
                 'metadata': mysampler.metadata
-            }
+            })
             with open(args.output, 'w') as f:
                 json.dump(output_data, f, indent=2, default=str)
             print(f"Successfully saved results to {args.output}")
@@ -398,16 +399,16 @@ def mystats_main():
         # Save output
         if args.output is None:
             # Output to stdout as JSON
-            output_data = {
-                'data': mystats.data.to_dict(),
+            output_data = json_normalize({
+                'data': mystats.data,
                 'metadata': mystats.metadata
-            }
+            })
             print(json.dumps(output_data, indent=2, default=str))
         elif args.output.endswith('.json'):
-            output_data = {
-                'data': mystats.data.to_dict(),
+            output_data = json_normalize({
+                'data': mystats.data,
                 'metadata': mystats.metadata
-            }
+            })
             with open(args.output, 'w') as f:
                 json.dump(output_data, f, indent=2, default=str)
             print(f"Successfully saved results to {args.output}")
@@ -503,10 +504,10 @@ def point_main():
         # Save output (JSON only for point queries)
         if args.output is None:
             # Output to stdout as JSON
-            print(json.dumps(point.event, indent=2, default=str))
+            print(json.dumps(json_normalize(point.event), indent=2, default=str))
         elif args.output.endswith('.json'):
             with open(args.output, 'w') as f:
-                json.dump(point.event, f, indent=2, default=str)
+                json.dump(json_normalize(point.event), f, indent=2, default=str)
             print(f"Successfully saved results to {args.output}")
         else:
             print("Error: Output file must be .json for point queries", file=sys.stderr)
@@ -567,10 +568,10 @@ def channel_main():
         # Save output (JSON only for channel queries)
         if args.output is None:
             # Output to stdout as JSON
-            print(json.dumps(channel.matches, indent=2, default=str))
+            print(json.dumps(json_normalize(channel.matches), indent=2, default=str))
         elif args.output.endswith('.json'):
             with open(args.output, 'w') as f:
-                json.dump(channel.matches, f, indent=2, default=str)
+                json.dump(json_normalize(channel.matches), f, indent=2, default=str)
             print(f"Successfully saved {len(channel.matches)} results to {args.output}")
         else:
             print("Error: Output file must be .json for channel queries", file=sys.stderr)
