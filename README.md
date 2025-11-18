@@ -26,6 +26,7 @@ The package supports multiple myquery endpoints:
 - **Command Line Interface**: Command-line tools for quick queries
 
 ## See Also
+- [PyPI](https://pypi.org/project/jlab-archiver-client)
 - [myquery](https://github.com/JeffersonLab/myquery)
 - [jmyapi](https://github.com/JeffersonLab/jmyapi)
 - [wave](https://github.com/JeffersonLab/wave)
