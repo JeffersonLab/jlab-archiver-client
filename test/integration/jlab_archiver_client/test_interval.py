@@ -177,7 +177,7 @@ class TestInterval(unittest.TestCase):
 
         exp_data, exp_disconnects, exp_metadata = self.load_interval_data("interval_1", pv=pv)
         self.check_interval_result(exp_data, exp_disconnects, exp_metadata, res_data, res_disconnects, res_metadata)
-    
+
     def test_get_interval_2(self):
         """Test query that uses sampling and some extra options (no NaNs)"""
         # Was R123GMES

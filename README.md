@@ -13,13 +13,15 @@ The package supports multiple myquery endpoints:
 - **channel**: Search and discover available channel names
 
 ## Key Features
-- **Pandas Integration**: All data returned as pandas Series or DataFrames
+- **Pandas Integration**: All data returned as pandas Series, DataFrames, and simple dictionaries
 - **Datetime Indexing**: Time-series data with proper datetime indices
 - **Disconnect Handling**: Non-update events tracked separately
-- **Parallel Queries**: Multi-channel queries with concurrent execution
+- **Parallel Queries**: Limited support for multi-channel queries with concurrent execution
 - **Type Safety**: Query builder classes with parameter validation
 - **Enum Support**: Option to convert enum values to strings
 - **Thread-Safe Config**: Runtime configuration changes supported
+- **History Deployment**: Defaults to Jefferson Lab's read-only history deployment
+- **Command Line Interface**: Command-line tools for quick queries
 
 ## See Also
 - [myquery](https://github.com/JeffersonLab/myquery)
@@ -214,3 +216,13 @@ print(channel.matches)
 #  {'name': 'channel101', 'datatype': 'DBR_DOUBLE', 'datasize': 1, ...}]
 ```
 
+### Command Line Tools
+This package includes command-line tools for quick queries.  After installation, use the `--help` or `-h` flag for usage information.
+
+| Command                          | Description                                              |
+|----------------------------------|----------------------------------------------------------|
+| `jac-interval`                   | Query all events for a single PV over a time range       |
+| `jac-mysampler`                  | Regularly sample multiple PVs                            |
+| `jac-mystats`                    | Compute statistical aggregations over time bins          |
+| `jac-point`                      | Retrieve a single event at or near a specific time       |
+| `jac-channel`                    | Search and discover available channel names and metadata |

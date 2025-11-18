@@ -1,4 +1,4 @@
-"""Query builder classes for Jefferson Lab Archiver myquery endpoints.
+r"""Query builder classes for Jefferson Lab Archiver myquery endpoints.
 
 This module provides query builder classes for constructing requests to various
 Jefferson Lab Archiver myquery service endpoints. Each query class encapsulates
@@ -221,7 +221,7 @@ class MySamplerQuery(Query):
 
 class ChannelQuery(Query):
     """A class for containing the arguments needed by myquery's channel endpoint."""
-
+    # noinspection PyMissingConstructor
     def __init__(self, pattern: str, limit: Optional[int] = None, offset: Optional[int] = None,
                  deployment: Optional[str] = "history", **kwargs):
         """Construct an instance of ChannelQuery.

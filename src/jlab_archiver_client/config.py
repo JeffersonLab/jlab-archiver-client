@@ -37,7 +37,7 @@ See Also:
     jlab_archiver_client.query: Query classes that use config for endpoint URLs
 """
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from threading import RLock
 
 # Used to support thread-safe reads and coherent snapshots of configuration

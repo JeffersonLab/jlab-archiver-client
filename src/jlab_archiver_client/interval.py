@@ -85,7 +85,7 @@ Examples:
         2019-08-12 00:44:11       3.0  [1565580000.0, 1565580000.0, 1565580000.0, 156...
         2019-08-12 01:00:01       3.0  [1565590000.0, 1565580000.0, 1565580000.0, 156...
         2019-08-12 01:14:06       0.0  [1565590000.0, 1565580000.0, 1565580000.0, 156...
-"""
+""" # noqa: E501
 import concurrent
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, Dict, List, Tuple
@@ -140,7 +140,7 @@ class Interval:
         opts = self.query.to_web_params()
         r = requests.get(self.url, params=opts)
 
-        if r.status_code != 200:
+        if r.status_code != requests.codes.OK:
             raise requests.RequestException(f"Error contacting server. status={r.status_code} details={r.text}")
 
         content = r.json()
@@ -158,7 +158,7 @@ class Interval:
                 ts.append(item['d'])
                 values.append(item['v'])
 
-        # Default value for empty series is in flux.  Future will have dtype of object.  This skips a deprecation warning.
+        # Default value for empty series is in flux.  Future will have dtype of object.  Skips a deprecation warning.
         if len(disconnect_values) == 0:
             disconnects = pd.Series(disconnect_values, index=disconnect_ts, name=self.query.channel, dtype=object)
         else:
