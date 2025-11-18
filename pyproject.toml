@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pymyquery"
+name = "jlab_archiver_client"
 authors = [
     { name = "Adam Carpenter", email = "adamc@jlab.org" },
 ]
