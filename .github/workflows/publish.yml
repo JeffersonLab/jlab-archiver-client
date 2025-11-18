@@ -2,10 +2,11 @@
 name: PyPi Publish
 
 on:
-  workflow_call:
-    secrets:
-      PYPI_API_TOKEN:
-        required: true
+  push:
+    branches: [ main ]
+    paths:
+      - 'VERSION'
+  workflow_dispatch:
 
 jobs:
   publish:
