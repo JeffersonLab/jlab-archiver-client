@@ -11,6 +11,11 @@ services:
     environment:
       - MYSQL_PASSWORD=password
       - MYSQL_ROOT_PASSWORD=password
+    healthcheck:
+      test: "mysqladmin ping -h localhost -u root -ppassword"
+      interval: 5s
+      timeout: 10s
+      retries: 12
   myquery:
     image: jeffersonlab/myquery:6.2.0
     hostname: myquery
@@ -20,3 +25,11 @@ services:
     volumes:
       - ./docker/myquery/context.xml:/usr/local/tomcat/conf/context.xml
       - ./docker/myquery/deployment.properties:/usr/local/tomcat/lib/deployment.properties
+    depends_on:
+      mya:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail 'http://localhost:8080/myquery/channel?q=channel10%25&l=&o=&m=docker'"
+      interval: 5s # Check every 5 seconds
+      timeout: 10s # Wait 10 seconds for a response
+      retries: 12 # Retry up to 12 times
