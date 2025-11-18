@@ -25,6 +25,9 @@ The package supports multiple myquery endpoints:
 - **History Deployment**: Defaults to Jefferson Lab's read-only history deployment
 - **Command Line Interface**: Command-line tools for quick queries
 
+## API Documentation
+Documentation can be found [here](https://jeffersonlab.github.io/jlab_archiver_client/)
+
 ## See Also
 - [PyPI](https://pypi.org/project/jlab-archiver-client)
 - [myquery](https://github.com/JeffersonLab/myquery)
