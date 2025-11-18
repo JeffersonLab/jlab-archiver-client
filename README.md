@@ -1,6 +1,8 @@
-#  jlab_archiver_client
+# jlab_archiver_client
 
 A Python client library for querying the Jefferson Lab EPICS archiver (MYA) via the myquery web service.
+
+It is intended for non-mission critical applications such as data analysis and uses the CEBAF read-only archiver deployment by default.  CEBAF mission critical applications should use internal libraries that provide direct access to the operations-oriented deployment.
 
 ## Overview
 This package provides a convenient Python interface to the myquery web service, making archived EPICS Process Variable (PV) data easily accessible for analysis. Data is returned in familiar pandas data structures (Series and DataFrames) with datetime indices for time-series analysis.
@@ -31,8 +33,66 @@ The package supports multiple myquery endpoints:
 ## Installation
 
 ```bash
-pip install git+https://github.com/JeffersonLab/jlab_archiver_client.git
+pip install jlab_archiver_client
 ```
+
+## Developer Quick Start Guide
+Download the repo, create a virtual environment using pythong 3.11+, and install the package in editable mode with 
+development dependencies.  Then develop using your preferred IDE, etc.
+
+*Linux*
+```bash
+git clone https://github.com/JeffersonLab/jlab_archiver_client
+cd jlab_archiver_client
+python3.11 -m venv venv
+venv/bin/activate
+pip install -e .[dev]
+```
+
+*Windows*
+```bash
+git clone https://github.com/JeffersonLab/jlab_archiver_client
+cd jlab_archiver_client
+\path\to\python3 -m venv venv
+venv\Scripts\activate.ps1
+pip install -e .[dev]
+```
+
+To start the provided database.
+```
+docker compose up
+```
+
+### Testing
+This application supports testing using `pytest` and code coverage using `coverage`.  Configuration in `pyproject.toml`.
+Integration tests required that the provided docker container(s) are running.  [Tests](https://github.com/JeffersonLab/jlab_archiver_client/.github/workflows/test.yml) are automatically run on appropriate triggers.
+
+| Test Type            | Command                                  |
+|----------------------|------------------------------------------|
+| Unit                 | `pytest test/unit`                       |
+| Integration          | `pytest test/integration`                |
+| Unit & Integration   | `pytest`                                 |
+| Code Coverage Report | `pytest --cov-report=html`               |
+| Linting              | `ruff  check [--fix]`                    |
+
+### Documentation
+Documentation is done in Sphinx and automatically built and published to GitHub Pages when triggering a new [release](https://github.com/JeffersonLab/jlab_archiver_client/.github/workflows/release.yml).  To build documentation, run this commands from the project root.
+```
+sphinx-build -b html docsrc/source build/docs
+```
+
+### Release
+Release are generated automatically when the VERSION file recieves a commit on the main branch.  Artifcats (packages) are deployed to PyPI automatically as this is intended for a broader audience.  Build artifacts are automatically attached to the releases when generated along with the python dependency information for the build (requirements.txt).
+
+
+
+
+
+
+
+
+
+
 
 ## Configuration (Optional)
 
